@@ -1,0 +1,286 @@
+/**
+ * @author Magnus
+ *
+ */
+package no.uio.ifi.afmcrec.reconfigAnalysis;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+
+public class FeatureModel{
+		
+	private HashMap<String, Attribute> attributes;
+	private HashMap<String, ContextVar> context;
+	private ArrayList<String> constraints;
+	private ArrayList<ArrayList<Integer>> idsInConstraints;
+	private HashSet<Integer> selectedFeatures;
+	private HashSet<String> nonSelectableFeatures;
+	
+	private int size;
+	private int numberOfFeatures;
+	private int numberOfAttributes;
+	private int contextSize;
+	
+	private Pattern assignedFeatPattern = Pattern.compile("feature\\[_id\\d+\\] = [01]");
+	
+	FeatureModel(JSONObject FM, int size){
+		attributes = new HashMap<String, Attribute>();
+		context = new HashMap<String, ContextVar>();
+		constraints = new ArrayList<String>();
+		idsInConstraints = new ArrayList<ArrayList<Integer>>();
+		initializeIdsInConstraints(size);
+		selectedFeatures = new HashSet<Integer>();
+		nonSelectableFeatures = new HashSet<String>();
+		populate(FM);
+	}
+	
+	private void initializeIdsInConstraints(int size){
+		for (int i = 0; i < size; i++){
+			idsInConstraints.add(i, new ArrayList<Integer>());
+		}
+	}
+	
+	private void populate(JSONObject FM){
+		JSONObject configJSON = (JSONObject) FM.get("configuration");
+		
+		JSONArray attributesJSON = (JSONArray) FM.get("attributes");
+		Iterator<JSONObject> attributeIter = attributesJSON.iterator();
+		while (attributeIter.hasNext()){
+			JSONObject a = attributeIter.next();
+			String id = (String) a.get("id");
+			Long min = (Long) a.get("min");
+			Long max = (Long) a.get("max");
+			String featureId = (String) a.get("featureId");
+			Attribute attribute = new Attribute(id, min.intValue(), max.intValue(), featureId);
+			attributes.put(id, attribute);
+		}
+		
+		JSONArray attributeValuesJSON = (JSONArray) configJSON.get("attribute_values");
+		Iterator<JSONObject> attributeValueIter = attributeValuesJSON.iterator();
+		while (attributeValueIter.hasNext()){
+			JSONObject av = attributeValueIter.next();
+			String id = (String) av.get("id");
+			Long value = (Long) av.get("value");
+			Attribute attribute = attributes.get(id);
+			attribute.setValue(value.intValue());
+		}
+		
+		JSONArray contextJSON = (JSONArray) FM.get("contexts");
+		Iterator<JSONObject> contextIter = contextJSON.iterator();
+		while (contextIter.hasNext()){
+			JSONObject c = contextIter.next();
+			String id = (String) c.get("id");
+			Long min = (Long) c.get("min");
+			Long max = (Long) c.get("max");
+			ContextVar contextvar = new ContextVar(id, min.intValue(), max.intValue());
+			context.put(id, contextvar);
+		}
+		
+		JSONArray contextValuesJSON = (JSONArray) configJSON.get("context_values");
+		Iterator<JSONObject> contextValueIter = contextValuesJSON.iterator();
+		while (contextValueIter.hasNext()){
+			JSONObject cv = contextValueIter.next();
+			String id = (String) cv.get("id");
+			Long value = (Long) cv.get("value");
+			ContextVar contextvar = context.get(id);
+			contextvar.setValue(value.intValue());
+		}
+		
+		
+		JSONArray constraintsJSON = (JSONArray) FM.get("constraints");
+		Iterator<String> constraintsIter = constraintsJSON.iterator();
+		while (constraintsIter.hasNext()){
+			String constraint = constraintsIter.next();
+			constraints.add(constraint);
+
+		}
+		
+		JSONArray selectedFeaturesJSON = (JSONArray) configJSON.get("selectedFeatures");
+		Iterator<String> selectedFeaturesIter = selectedFeaturesJSON.iterator();
+		while (selectedFeaturesIter.hasNext()){
+			Integer selFeat = getIdAsInteger(selectedFeaturesIter.next());
+			if (selFeat >= 0) selectedFeatures.add(selFeat);
+		}
+		
+		locateSelectedFeatures();
+		populateIndexOfIdsBelongingToConstraints();
+		
+	}
+	
+	
+	public int getContextValue(String id){
+		ContextVar c = context.get(id);
+		return c.getValue();
+	}
+	
+	public Attribute getAttribute(int attIndex){
+		String attId = "attribute[_idatt"+attIndex+"]";
+		return attributes.get(attId);
+	}
+	
+	public int getAttributeValue(String id){
+		Attribute a = attributes.get(id);
+		return a.getValue();
+	}
+	
+	public int[] getAttributeRange(int attIndex){
+		// attribute[_idatt40] <  43 		
+		String attId = "attribute[_idatt"+attIndex+"]";
+		Attribute a = attributes.get(attId);
+		
+		if (!a.isRangeComplete()){
+			//System.out.println("Find range values for "+attId);		//
+			setMultiRange(attIndex, a);
+		}
+		
+		return a.getRange();
+	}
+	
+	private void setMultiRange(int index, Attribute a){
+		ArrayList<Integer> newRange = new ArrayList<Integer>();
+		String attributeConstraintPattern = ".*attribute\\[_idatt"+index+"\\] ([!><]=|[=><])  \\d+.*";
+		
+		for (String constraint : constraints){
+			//System.out.println(constraint+" matches? "+attributeConstraintPattern);
+			if (constraint.matches(attributeConstraintPattern)){				
+				String[] e = constraint.split("attribute\\[_idatt"+index+"\\] ([!><]=|[=><])  ");
+				Integer val = getIdAsInteger(e[1]);
+				a.insertRangeInterval(val.intValue());
+			}
+		}
+		a.rangeCompleted();
+	}
+	
+	public ArrayList<String> getConstraintsContainingId(int id){
+		ArrayList<Integer> constraintNumbers = idsInConstraints.get(id);
+		ArrayList<String> constraintList = new ArrayList<String>();
+		for(int n : constraintNumbers){
+			constraintList.add(constraints.get(n));
+		}
+		return constraintList;
+	}
+	
+	public ArrayList<String> getConstraints(){
+		return constraints;
+	}
+	
+	public HashSet<Integer> getSelectedFeatures(){
+		return selectedFeatures;
+	}
+	
+	private void locateSelectedFeatures(){
+		HashSet<Integer> queue = new HashSet<Integer>();
+		queue.addAll(selectedFeatures);
+		while (!queue.isEmpty()){
+			for (Integer f : queue.toArray(new Integer[queue.size()])){
+				selectedFeatures.add(f);
+				//System.out.println("Added to selected features: feature[_id"+f+"]");		//
+				HashSet<Integer> dependentFeatures = findDependentFeatures(f);
+				queue.addAll(dependentFeatures);
+				queue.remove(f);
+			}
+		}
+		//System.out.println("Number of features always selected "+selectedFeatures.size());		//
+	}
+	
+	private void populateIndexOfIdsBelongingToConstraints(){
+		for(int i = 0; i < constraints.size(); i++){
+			ArrayList<Integer> idsInThisConstraint = ExpressionEvaluation.getAllFeatAndAttrIds(constraints.get(i));
+			for (int j : idsInThisConstraint){
+				ArrayList<Integer> constraintNumbers = idsInConstraints.get(j);
+				constraintNumbers.add(i);
+			}
+		}
+/*		for (int k = 0; k < idsInConstraints.size(); k++){
+			System.out.println("id "+k+" is contained in:");
+			ArrayList<Integer> constraintNumbers = idsInConstraints.get(k);
+			for (int l : constraintNumbers){
+				System.out.println(l+": "+constraints.get(l));
+			}
+		}*/
+	}
+	private HashSet<Integer> findDependentFeatures(int trueFeat){
+		//TODO: add features where exp value is 0 to set of features that cannot be selected
+		HashSet<Integer> dependentFeatures = new HashSet<Integer>();
+		ArrayList<String> constraintsToBeRemoved = new ArrayList<String>();
+		//String requiresOrExcludesPattern = "\\(?feature\\[_id"+trueFeat+"\\] = 1 impl \\(?feature\\[_id\\d+\\] = [01]( and feature\\[_id\\d+\\] = [01])*\\){0,2}";
+		String requiresPattern = "\\(?feature\\[_id"+trueFeat+"\\] = 1 impl \\(?feature\\[_id\\d+\\] = 1( and feature\\[_id\\d+\\] = 1)*\\){0,2}";
+		
+		for (String constraint : constraints){
+			// Strings to match:
+			// "feature[_id"+trueFeat+"] = 1 impl (feature[_id4] = 1 and feature[_id6] = 1 and feature[_id8] = 1)",
+			// "(feature[_id17] = 1 impl feature[_id12] = 1)"
+			
+			if (constraint.matches(requiresPattern)){
+				boolean constraintCanBeRemoved = true;
+				String[] r = constraint.split(" impl ");
+				Matcher matcher = assignedFeatPattern.matcher(r[1]);
+				while (matcher.find()){
+				    String[] assignedFeat = matcher.group().split(" = ");
+				    int assignedTruthValue = Integer.parseInt(assignedFeat[1]); 
+				    if (assignedTruthValue == 1){
+				    	dependentFeatures.add(getIdAsInteger(assignedFeat[0]));
+				    }else{
+				    	constraintCanBeRemoved = false;
+				    }
+				}
+				constraintsToBeRemoved.add(constraint);
+			}
+		}
+		for (String c : constraintsToBeRemoved){
+			constraints.remove(c);
+			//System.out.println("Removed from R: "+c);
+		}
+		return dependentFeatures;
+	}
+	
+	private Integer getIdAsInteger(String id){
+		Pattern intPattern = Pattern.compile("\\d+");
+		Matcher m = intPattern.matcher(id);
+		if (m.find()) {
+		  return (Integer) Integer.parseInt(m.group());
+		}
+		return -1;
+	}
+	
+	public int numberOfFeatures(){
+		return numberOfFeatures;
+	}
+	
+	public void setNumberOfFeatures(int numberOfFeatures){
+		this.numberOfFeatures = numberOfFeatures;
+	}
+	
+	public int numberOfAttributes(){
+		return numberOfAttributes;
+	}
+	
+	public void setNumberOfAttributes(int numberOfAttributes){
+		this.numberOfAttributes = numberOfAttributes;
+	}
+
+	public int size() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public int contextSize() {
+		return contextSize;
+	}
+
+	public void setContextSize(int contextSize) {
+		this.contextSize = contextSize;
+	}
+}
