@@ -10,12 +10,12 @@ import no.uio.ifi.afmcrec.datasetGeneration.AFMDatasetGenerator;
 public class DataSetGeneration{
 	public static void main(String[] args){
 		
-		String dataSetName = "Stage1";
+		String dataSetName = "0209_TestingValidity";
 		
-		int sizeOfDataSet = 10;
+		int sizeOfDataSet = 100;
 		
 		// AFM Parameters
-		int numberOfFeatures = 80;
+		int numberOfFeatures = 1000;
 		int percentageOfCrossTreeConstraints = 30;
 		int mandatoryProbability = 32;
 		int optionalProbability = 18;
