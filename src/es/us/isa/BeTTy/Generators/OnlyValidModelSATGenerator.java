@@ -40,9 +40,11 @@ public class OnlyValidModelSATGenerator extends AbstractFMGeneratorDecorator {
 		VariabilityModel model = null;
 		GeneratorCharacteristics gch = ((GeneratorCharacteristics) ch).clone();
 		Random random = new Random();
+		
+		int tries = 0;
 
-		while (!valid && maxtries < 100) {
-			System.out.println(maxtries);
+		while (!valid && tries < maxtries) {
+			System.out.println("Attempt number "+(tries+1));
 			model = super.generateFM(ch);
 			FeatureModelTransform fmt= new FeatureModelTransform();
 			Sat4jReasoner r = new Sat4jReasoner();
@@ -56,8 +58,7 @@ public class OnlyValidModelSATGenerator extends AbstractFMGeneratorDecorator {
 			gch = ((GeneratorCharacteristics) ch).clone();
 			gch.setSeed(seed + random.nextInt());
 			ch = gch;
-			System.out.println(model);
-			if(!valid) System.out.println("Not valid");
+			tries++;
 		}
 		if(!valid) System.out.println("FINAL: Not valid");
 		return model;
