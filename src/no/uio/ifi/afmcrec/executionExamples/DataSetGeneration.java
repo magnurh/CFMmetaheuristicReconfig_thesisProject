@@ -42,7 +42,7 @@ public class DataSetGeneration{
 		}*/
 		
 		try {
-			generator.generateDataSetWithCustomAttributeFunction(false);
+			generator.generateDataSetWithCustomAttributeFunction(true);
 		} catch (BettyException b) {
 			System.err.println(b.getMessage());
 		} catch (Exception e) {

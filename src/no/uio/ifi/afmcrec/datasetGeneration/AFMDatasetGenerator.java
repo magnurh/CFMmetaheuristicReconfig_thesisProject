@@ -16,10 +16,14 @@ import java.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 import java.util.concurrent.ThreadLocalRandom;
 
-
+import es.us.isa.BeTTy.Generators.OnlyValidModelMMGenerator;
+import es.us.isa.BeTTy.Generators.OnlyValidModelSATGenerator;
 import es.us.isa.FAMA.models.FAMAAttributedfeatureModel.FAMAAttributedFeatureModel;
 import es.us.isa.FAMA.models.FAMAfeatureModel.FAMAFeatureModel;
 import es.us.isa.FAMA.models.domain.Range;
+import es.us.isa.benchmarking.Benchmark;
+import es.us.isa.benchmarking.FAMABenchmark;
+import es.us.isa.benchmarking.RandomExperiment;
 import es.us.isa.generator.FM.AbstractFMGenerator;
 import es.us.isa.generator.FM.FMGenerator;
 import es.us.isa.generator.FM.GeneratorCharacteristics;
@@ -144,17 +148,27 @@ public class AFMDatasetGenerator {
 		StringBuilder log = startLog(directory);
         GeneratorCharacteristics characteristics = setCharacteristics(new GeneratorCharacteristics());
         StringBuilder hyvarrecInputScript = new StringBuilder("#!/bin/bash\n\n");
-        NoProductsFitness noProdF = new NoProductsFitness();
+        //NoProductsFitness noProdF = new NoProductsFitness();
         
 		for (int i = 1; i <= sizeDataSet; i++){
 			int seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
 			characteristics.setSeed(characteristics.getSeed()+seedIncr);
 	        
-	        AbstractFMGenerator gen = new FMGenerator();
-	        FAMAFeatureModel fm = (FAMAFeatureModel) gen.generateFM(characteristics);
-	        boolean isVoid = true;
+	        FMGenerator gen = new FMGenerator();
+	        FAMAFeatureModel fm;
+	        Benchmark b;
+	        if(testForVoid){
+	        	OnlyValidModelSATGenerator genV = new OnlyValidModelSATGenerator(gen);
+//	        	b = new FAMABenchmark(genV);
+//	        	RandomExperiment e = b.createRandomExperiment(characteristics);
+//	        	fm = (FAMAFeatureModel) e.getVariabilityModel();
+	        	fm = (FAMAFeatureModel) genV.generateFM(characteristics);
+	        }else{
+	        	fm = (FAMAFeatureModel) gen.generateFM(characteristics);
+	        }
+	        //boolean isVoid = true;
 	        
-	        while(testForVoid && isVoid){
+/*	        while(testForVoid && isVoid){
 	        	//TODO: add isTooSimple-function, if possible
 	        	double noProd = noProdF.fitness(fm);
 	        	System.out.println(noProd);
@@ -163,7 +177,7 @@ public class AFMDatasetGenerator {
 	        		characteristics.setSeed(characteristics.getSeed()+seedIncr);
 	        		fm = (FAMAFeatureModel) gen.generateFM(characteristics);
 	        	}else isVoid = false;
-	        }
+	        }*/
 	        
 	        //FMStatistics fmStat = new FMStatistics(fm);
 	        //System.out.println(fmStat);
