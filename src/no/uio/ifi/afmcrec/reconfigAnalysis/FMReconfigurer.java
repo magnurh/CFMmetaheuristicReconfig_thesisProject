@@ -340,7 +340,7 @@ public class FMReconfigurer{
 			
 			an.write("\nMODEL\t\tAPPROACH\tTIME\tITERATIONS\tSCORE\tRESULT");
 			int index = 0;
-			int sizeAFM = inputParameters.get("size_AFM");
+			int sizeAFM = inputParameters.get("Size_AFM");
 			for(String modelname : results.keySet()){
 				for (int i = 0; i < approaches.length; i++){
 					Metaheuristic m = results.get(modelname);
