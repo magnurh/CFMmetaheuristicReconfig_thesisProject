@@ -1,0 +1,17 @@
+./data/PAPER_TESTMODEL/dataset.txt
+./data/PAPER_TESTMODEL/afmWithContext
+Size_dataSet: 2
+Size_AFM: 16
+Percentage_CTC: 0
+Max_number_of_Validity_Formulas: 5
+Probability_mandatory: 0
+Probability_optional: 0
+Probability_ALT: 0
+Probability_OR: 0
+Context_MaxSize: 2
+Context_MaxValue: 3
+
+Feature_models
+FILENAME	#FEATURES	#ATTRIBUTES	TOTAL_SIZE	CONTEXTSIZE
+example.json	16	1	17	2
+example2.json	16	1	17	2

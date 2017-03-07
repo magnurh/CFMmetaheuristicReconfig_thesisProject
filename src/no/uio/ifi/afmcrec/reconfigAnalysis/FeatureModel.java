@@ -185,7 +185,10 @@ public class FeatureModel{
 				selectedFeatures.add(f);
 				//System.out.println("Added to selected features: feature[_id"+f+"]");		//
 				HashSet<Integer> dependentFeatures = findDependentFeatures(f);
-				queue.addAll(dependentFeatures);
+				for (Integer g : dependentFeatures){
+				//	System.out.println("Add to queue: feature[_id"+g+"]");		//
+					if (!selectedFeatures.contains(g)) queue.add(g);
+				}
 				queue.remove(f);
 			}
 		}
@@ -213,7 +216,7 @@ public class FeatureModel{
 		HashSet<Integer> dependentFeatures = new HashSet<Integer>();
 		ArrayList<String> constraintsToBeRemoved = new ArrayList<String>();
 		//String requiresOrExcludesPattern = "\\(?feature\\[_id"+trueFeat+"\\] = 1 impl \\(?feature\\[_id\\d+\\] = [01]( and feature\\[_id\\d+\\] = [01])*\\){0,2}";
-		String requiresPattern = "\\(?feature\\[_id"+trueFeat+"\\] = 1 impl \\(?feature\\[_id\\d+\\] = 1( and feature\\[_id\\d+\\] = 1)*\\){0,2}";
+		String requiresPattern = "\\(*(feature\\[_id\\d+\\] = 1 or )*feature\\[_id"+trueFeat+"\\] = 1( or feature\\[_id\\d+\\] = 1)*\\)* impl \\(?feature\\[_id\\d+\\] = 1( and feature\\[_id\\d+\\] = 1)*\\)*";
 		
 		for (String constraint : constraints){
 			// Strings to match:
@@ -238,7 +241,7 @@ public class FeatureModel{
 		}
 		for (String c : constraintsToBeRemoved){
 			constraints.remove(c);
-			//System.out.println("Removed from R: "+c);
+			//System.out.println("Removed from R: "+c);	//
 		}
 		return dependentFeatures;
 	}

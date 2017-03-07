@@ -1,0 +1,76 @@
+{
+  "preferences": [
+
+  ],
+  "configuration": {
+    "selectedFeatures": [
+      "feature[_id0]"
+    ],
+    "context_values": [
+      {
+        "id": "context[_idc0]",
+        "value": 1
+      },
+      {
+        "id": "context[_idc1]",
+        "value": 1
+      }
+    ],
+    "attribute_values": [
+      {
+        "id": "attribute[_idatt16]",
+        "value": 300
+      }
+    ]
+  },
+  "attributes": [
+    {
+      "min": 0,
+      "max": 300,
+      "id": "attribute[_idatt16]",
+      "featureId": "feature[_id11]"
+    }
+  ],
+  "contexts": [
+    {
+      "min": 0,
+      "max": 2,
+      "id": "context[_idc0]"
+    },
+    {
+      "min": 0,
+      "max": 1,
+      "id": "context[_idc1]"
+    }
+  ],
+  "constraints": [
+    "feature[_id0] = 1",
+    "feature[_id0] = 1 impl (feature[_id1] = 1 and feature[_id2] = 1 and feature[_id3] = 1 and feature[_id5] = 1)",
+    "(feature[_id1] = 1 impl feature[_id0] = 1)",
+    "(feature[_id2] = 1 impl feature[_id0] = 1)",
+    "(feature[_id3] = 1 impl feature[_id0] = 1)",
+    "(feature[_id5] = 1 impl feature[_id0] = 1)",
+    "(feature[_id4] = 1 impl feature[_id0] = 1)",
+    "feature[_id1] = 1 impl (feature[_id6] + feature[_id7] = 1)",
+    "(feature[_id6] = 1 or feature[_id7] = 1) impl feature[_id1] = 1",
+    "feature[_id2] = 1 impl (feature[_id8] + feature[_id9] = 1)",
+    "(feature[_id8] = 1 or feature[_id9] = 1) impl feature[_id2] = 1",
+    "(feature[_id3] = 1 impl feature[_id11] = 1)",
+    "(feature[_id11] = 1 impl feature[_id3] = 1)",
+    "(feature[_id10] = 1 impl feature[_id3] = 1)",
+    "feature[_id4] = 1 impl (feature[_id12] = 1 or feature[_id13] = 1)",
+    "(feature[_id12] = 1 or feature[_id13] = 1) impl feature[_id4] = 1",
+    "feature[_id13] = 1 impl (feature[_id14] + feature[_id15] = 1)",
+    "(feature[_id14] = 1 or feature[_id15] = 1) impl feature[_id13] = 1",
+    "(feature[_id6] = 1 impl feature[_id8] = 1)",
+    "(feature[_id7] = 1 impl feature[_id9] = 1)",
+    "feature[_id10] = 1 impl (feature[_id12] = 1 and feature[_id13] = 1)",
+    "(feature[_id11] = 1 impl feature[_id13] = 1)",
+    "((attribute[_idatt16] >  180 ) impl feature[_id15] = 1)",
+    "(feature[_id6] = 1 impl (context[_idc1] =  1 ))",
+    "(feature[_id7] = 1 impl (context[_idc1] =  0 ))",
+    "(feature[_id11] = 1 impl (((context[_idc0] =  1 ) impl (attribute[_idatt16] <=  160 ))))",
+    "(feature[_id11] = 1 impl (((context[_idc0] =  2 ) impl (attribute[_idatt16] <=  100 ))))",
+    "(feature[_id11] = 1 impl (((context[_idc1] =  0 ) impl (attribute[_idatt16] <=  110 ))))"
+  ]
+}
