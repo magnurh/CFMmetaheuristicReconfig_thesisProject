@@ -10,7 +10,7 @@ public class FMConfigAllApproaches {
 	
 	public static void main(String[] args){
 		
-		String input = "./out/data/0209_TestingValidity/170209-193218/dataset.txt";
+		String input = "./out/data/0308_TestingRulestructure/170308-101850/dataset.txt";
 		
 		FMReconfigurer engine = new FMReconfigurer(input);
 		engine.applyHillClimbing();
