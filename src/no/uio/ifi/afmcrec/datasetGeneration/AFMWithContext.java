@@ -88,8 +88,16 @@ public class AFMWithContext{
 		setFeatureSelected(rootId);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void setMandatoryConstraints(int parent, int[] children){
+		setMandatoryConstraintsComplexRule(parent, children);
+	}
+	
+	public void setOptionalConstraints(int parent, int[] children){
+		setOptionalConstraintsSimpleRules(parent, children);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setMandatoryConstraintsComplexRule(int parent, int[] children){
 		if (children.length > 0){
 			String newConstraint = "feature[_id"+parent+"] = 1 impl (feature[_id"+children[0]+"] = 1";
 			for (int i = 1; i < children.length; i++){
@@ -103,7 +111,32 @@ public class AFMWithContext{
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void setOptionalConstraints(int parent, int[] children){
+	private void setMandatoryConstraintsSimpleRules(int parent, int[] children){
+		if (children.length > 0){
+			for (int i = 0; i < children.length; i++){
+				String newConstraint = "feature[_id"+parent+"] = 1 impl feature[_id"+children[0]+"] = 1";
+				constraints.add(newConstraint);
+			}
+			setOptionalConstraints(parent, children);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setOptionalConstraintsComplexRule(int parent, int[] children){
+		if (children.length > 0){
+			String newConstraint = "(feature[_id"+children[0]+"] = 1";
+			for (int i = 1; i < children.length; i++){
+				newConstraint = newConstraint.concat(" or feature[_id"+children[i]+"] = 1");
+			}
+			newConstraint = newConstraint.concat(") impl feature[_id"+parent+"] = 1");
+			constraints.add(newConstraint);
+			
+			setOptionalConstraints(parent, children);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void setOptionalConstraintsSimpleRules(int parent, int[] children){
 		for (int i = 0; i < children.length; i++){
 			constraints.add("(feature[_id"+children[i]+"] = 1 impl feature[_id"+parent+"] = 1)");
 		}
@@ -122,9 +155,10 @@ public class AFMWithContext{
 		orGroup = orGroup.concat(")");
 		
 		String newConstraint1 = "feature[_id"+parent+"] = 1 impl ".concat(orGroup);
-		String newConstraint2 = orGroup.concat(" impl feature[_id"+parent+"] = 1");
+		//String newConstraint2 = orGroup.concat(" impl feature[_id"+parent+"] = 1");
 		constraints.add(newConstraint1);
-		constraints.add(newConstraint2);
+		//constraints.add(newConstraint2);
+		setOptionalConstraints(parent, children);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -133,17 +167,18 @@ public class AFMWithContext{
 			System.err.println("Alternative group must have at least two children ("+parent+" has "+children.length+" children in alternative group)");
 			throw new Exception();
 		}
-		String newConstraint1 = "(feature[_id"+children[0]+"] = 1 or feature[_id"+children[1]+"] = 1";
+		//String newConstraint1 = "(feature[_id"+children[0]+"] = 1 or feature[_id"+children[1]+"] = 1";
 		String newConstraint2 = "feature[_id"+parent+"] = 1 impl (feature[_id"+children[0]
 				+"] + feature[_id"+children[1]+"]";
 		for (int i = 2; i < children.length; i++){
-			newConstraint1 = newConstraint1.concat(" or feature[_id"+children[i]+"] = 1");
+		//	newConstraint1 = newConstraint1.concat(" or feature[_id"+children[i]+"] = 1");
 			newConstraint2 = newConstraint2.concat(" + feature[_id"+children[i]+"]");
 		}
-		newConstraint1 = newConstraint1.concat(") impl feature[_id"+parent+"] = 1");
+		//newConstraint1 = newConstraint1.concat(") impl feature[_id"+parent+"] = 1");
 		newConstraint2 = newConstraint2.concat(" = 1)");
-		constraints.add(newConstraint1);
+		//constraints.add(newConstraint1);
 		constraints.add(newConstraint2);
+		setOptionalConstraints(parent, children);
 	}
 	
 	@SuppressWarnings("unchecked")
