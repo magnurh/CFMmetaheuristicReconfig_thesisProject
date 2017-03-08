@@ -71,7 +71,6 @@
     "(feature[_id15] = 1 impl feature[_id13] = 1)",
     "(feature[_id6] = 1 impl feature[_id8] = 1)",
     "(feature[_id7] = 1 impl feature[_id9] = 1)",
-    "feature[_id10] = 1 impl (feature[_id12] = 1 and feature[_id13] = 1)",
     "(feature[_id10] = 1 impl feature[_id12] = 1)",
     "(feature[_id10] = 1 impl feature[_id13] = 1)",
     "(feature[_id11] = 1 impl feature[_id13] = 1)",

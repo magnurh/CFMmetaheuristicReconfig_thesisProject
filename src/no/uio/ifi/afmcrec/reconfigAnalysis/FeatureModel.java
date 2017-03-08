@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,6 +113,7 @@ public class FeatureModel{
 		}
 		
 		locateSelectedFeatures();
+		removeRulesAffectedBySelectedFeatures();
 		populateIndexOfIdsBelongingToConstraints();
 		
 	}
@@ -195,6 +197,34 @@ public class FeatureModel{
 		//System.out.println("Number of features always selected "+selectedFeatures.size());		//
 	}
 	
+	private void removeRulesAffectedBySelectedFeatures(){
+		String selectedIdsPattern = generateOrPatternFromSetOfIntegers(selectedFeatures);
+		System.out.println(selectedIdsPattern);
+		String obsoleteRulePattern = "\\(*.* impl \\(*(feature\\[_id\\d+\\] = [01] or )*feature\\[_id"+selectedIdsPattern+"\\] = 1( or feature\\[_id\\d+\\] = [01])*\\)*";
+					// feature[_id4] = 1 impl (feature[_id12] = 1 or feature[_id13] = 1)
+		for(ListIterator<String> constrIter = constraints.listIterator(); constrIter.hasNext();){
+			String rule = constrIter.next();
+			if(rule.matches(obsoleteRulePattern)){
+				//System.out.println("Is obsolete: "+rule);
+				constrIter.remove();
+			}else{
+				//System.out.println("Not obsolete: "+rule);
+			}
+		}
+		//for(String c : constraints) System.out.println(c);
+		
+	}
+	
+	private String generateOrPatternFromSetOfIntegers(HashSet<Integer> set){
+		Iterator<Integer> selectedIds = set.iterator();
+		String selectedIdsPattern = "("+selectedIds.next();
+		while (selectedIds.hasNext()){
+			selectedIdsPattern += "|"+selectedIds.next();
+		}
+		selectedIdsPattern += ")";
+		return selectedIdsPattern;
+	}
+	
 	private void populateIndexOfIdsBelongingToConstraints(){
 		for(int i = 0; i < constraints.size(); i++){
 			ArrayList<Integer> idsInThisConstraint = ExpressionEvaluation.getAllFeatAndAttrIds(constraints.get(i));
@@ -236,13 +266,14 @@ public class FeatureModel{
 				    	constraintCanBeRemoved = false;
 				    }
 				}
-				constraintsToBeRemoved.add(constraint);
+				if (constraintCanBeRemoved) constraintsToBeRemoved.add(constraint);
 			}
 		}
 		for (String c : constraintsToBeRemoved){
 			constraints.remove(c);
 			//System.out.println("Removed from R: "+c);	//
 		}
+		
 		return dependentFeatures;
 	}
 	
