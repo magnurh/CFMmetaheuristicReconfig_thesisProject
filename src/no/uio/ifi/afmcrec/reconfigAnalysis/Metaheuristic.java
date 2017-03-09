@@ -453,7 +453,9 @@ public class Metaheuristic{
 			//System.out.println(geneticAlgTotalIterations+" GenerationSize: "+generation.size());
 			
 			boolean globalOptFound = false;
+			//System.out.println(geneticAlgTotalIterations+" size: "+generation.size());
 			for(Candidate p : generation){
+				//System.out.print(p.score()+",");
 				if(p.score() < best.score()){
 					best = p;
 					if (best.score() == 0) {
@@ -462,11 +464,14 @@ public class Metaheuristic{
 					}
 				}
 			}
+			//System.out.println();
 			if(!globalOptFound){
 				generation = naturalSelection(generation, popSize);
-				
+				//System.out.println(geneticAlgTotalIterations+" size: "+generation.size());
 				double newGeneralFitness = calculateGeneralFitness(generation);
-				if(newGeneralFitness >= bestGeneralFitness) termCount++;
+				if(newGeneralFitness >= bestGeneralFitness) {
+					termCount++;
+				}
 				else bestGeneralFitness = newGeneralFitness;
 				generalFitness = newGeneralFitness;
 				
@@ -485,6 +490,16 @@ public class Metaheuristic{
 			}
 			
 		}
+		
+		//
+/*		if (best.score() > 0){
+			System.out.println("Score: "+best.score()+", Iterations: "+geneticAlgTotalIterations);
+			for(Candidate p: generation){
+				int[] config = p.getCandidateVector();
+				System.out.println(FMReconfigurer.resultAsString(config, FM.getNumberOfFeatures()));
+			}
+		}*/
+		//
 		
 		if(best.score() < geneticAlgBestScore){
 			geneticAlgBestScore = best.score();
