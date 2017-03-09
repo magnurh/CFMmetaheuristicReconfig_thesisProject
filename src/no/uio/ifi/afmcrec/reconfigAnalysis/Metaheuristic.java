@@ -436,6 +436,11 @@ public class Metaheuristic{
 		return Math.exp((currentScore - neighbScore)/temp);
 	}
 	
+	/* TODO:
+	 * try check to see if already exists in crossover
+	 * try not add parent - instead increase number of children ?
+	 * 
+	*/
 	public int geneticAlgorithm(int initPopSize, int crossOverBreakPoints, double mutationProbability){
 		int popSize = initPopSize;
 		if (initPopSize % 2 != 0) popSize--;
@@ -510,7 +515,6 @@ public class Metaheuristic{
 	}
 	
 	private ArrayList<Candidate> crossover(Candidate parent1, Candidate parent2, int noBreakPoints, double mutationProbability){
-		//TODO: add mutation
 		int vectLength = parent1.getCandidateVector().length;
 		if(vectLength != parent2.getCandidateVector().length) {
 			System.err.println("Genetic alg: Two parents cannot have different vector length: "+vectLength+" != "+parent2.getCandidateVector().length);
@@ -640,7 +644,7 @@ public class Metaheuristic{
 			}
 		}*/
 		//System.out.println("New Gen size: "+newSelection.size());		//
-		//Collections.shuffle(newSelection);
+		Collections.shuffle(newSelection);
 		return newSelection;
 	}
 	
