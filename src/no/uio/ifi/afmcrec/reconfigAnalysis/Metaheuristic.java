@@ -600,14 +600,17 @@ public class Metaheuristic{
 		for(int j = 0; j < replacements; j++){
 			int toBeReplaced = ThreadLocalRandom.current().nextInt(5, i);
 			int toReplace = ThreadLocalRandom.current().nextInt(i, generation.size());
+			newSelection.remove(toBeReplaced);
 			newSelection.add(toBeReplaced, generation.get(toReplace));
 		}
 		//System.out.println();
 		
 		// Introducing foreign genes
-		for(int j = 0; j < replacements; j++){
+		int inttroducedSpecies = popSize/16;
+		for(int j = 0; j < inttroducedSpecies; j++){
 			int toBeReplaced = ThreadLocalRandom.current().nextInt(5, i);
 			//int toReplace = ThreadLocalRandom.current().nextInt(i, generation.size());
+			newSelection.remove(toBeReplaced);
 			newSelection.add(toBeReplaced, new Candidate(FM, FM.generateCandidate()));
 		}
 		
