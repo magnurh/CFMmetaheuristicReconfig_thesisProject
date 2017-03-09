@@ -89,13 +89,16 @@ public class AFMWithContext{
 	}
 	
 	public void setMandatoryConstraints(int parent, int[] children){
-		setMandatoryConstraintsComplexRule(parent, children);
+		//setMandatoryConstraintsComplexRule(parent, children);
+		setMandatoryConstraintsSimpleRules(parent, children);
 	}
 	
 	public void setOptionalConstraints(int parent, int[] children){
-		setOptionalConstraintsSimpleRules(parent, children);
+		setOptionalConstraintsComplexRule(parent, children);
+		//setOptionalConstraintsSimpleRules(parent, children);
 	}
 	
+	// Not preferred
 	@SuppressWarnings("unchecked")
 	private void setMandatoryConstraintsComplexRule(int parent, int[] children){
 		if (children.length > 0){
@@ -121,6 +124,7 @@ public class AFMWithContext{
 		}
 	}
 	
+	// Preferred by Genetic Algorithm (slightly)
 	@SuppressWarnings("unchecked")
 	private void setOptionalConstraintsComplexRule(int parent, int[] children){
 		if (children.length > 0){
@@ -130,11 +134,10 @@ public class AFMWithContext{
 			}
 			newConstraint = newConstraint.concat(") impl feature[_id"+parent+"] = 1");
 			constraints.add(newConstraint);
-			
-			setOptionalConstraints(parent, children);
 		}
 	}
 	
+	// Preferred by Hill-climbing and simulated annealing
 	@SuppressWarnings("unchecked")
 	private void setOptionalConstraintsSimpleRules(int parent, int[] children){
 		for (int i = 0; i < children.length; i++){
