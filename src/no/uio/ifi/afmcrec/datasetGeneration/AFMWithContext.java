@@ -117,7 +117,7 @@ public class AFMWithContext{
 	private void setMandatoryConstraintsSimpleRules(int parent, int[] children){
 		if (children.length > 0){
 			for (int i = 0; i < children.length; i++){
-				String newConstraint = "feature[_id"+parent+"] = 1 impl feature[_id"+children[0]+"] = 1";
+				String newConstraint = "feature[_id"+parent+"] = 1 impl feature[_id"+children[i]+"] = 1";
 				constraints.add(newConstraint);
 			}
 			setOptionalConstraints(parent, children);
