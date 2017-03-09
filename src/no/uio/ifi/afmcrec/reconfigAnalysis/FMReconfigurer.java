@@ -541,7 +541,7 @@ public class FMReconfigurer{
 	}
 	*/
 
-	private static String resultAsString(int[] v, int sizeAFM){
+	public static String resultAsString(int[] v, int sizeAFM){
 		String res = "";
 		String deliminator = "";
 		for (int i = 0; i < v.length; i++){
