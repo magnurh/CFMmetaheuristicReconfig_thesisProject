@@ -14,12 +14,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import org.json.simple.JSONObject;
+
+import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
 import es.us.isa.BeTTy.Generators.OnlyValidModelMMGenerator;
 import es.us.isa.BeTTy.Generators.OnlyValidModelSATGenerator;
 import es.us.isa.FAMA.models.FAMAAttributedfeatureModel.FAMAAttributedFeatureModel;
 import es.us.isa.FAMA.models.FAMAfeatureModel.FAMAFeatureModel;
+import es.us.isa.FAMA.models.FAMAfeatureModel.Feature;
+import es.us.isa.FAMA.models.FAMAfeatureModel.Relation;
 import es.us.isa.FAMA.models.domain.Range;
 import es.us.isa.benchmarking.Benchmark;
 import es.us.isa.benchmarking.FAMABenchmark;
@@ -153,19 +157,35 @@ public class AFMDatasetGenerator {
 		for (int i = 1; i <= sizeDataSet; i++){
 			int seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
 			characteristics.setSeed(characteristics.getSeed()+seedIncr);
-	        
-	        FMGenerator gen = new FMGenerator();
+			FMGenerator gen = new FMGenerator();
+			OnlyValidModelSATGenerator genV;
 	        FAMAFeatureModel fm;
-	        Benchmark b;
 	        if(testForVoid){
-	        	OnlyValidModelSATGenerator genV = new OnlyValidModelSATGenerator(gen);
-//	        	b = new FAMABenchmark(genV);
-//	        	RandomExperiment e = b.createRandomExperiment(characteristics);
-//	        	fm = (FAMAFeatureModel) e.getVariabilityModel();
+	        	genV = new OnlyValidModelSATGenerator(gen);
 	        	fm = (FAMAFeatureModel) genV.generateFM(characteristics);
 	        }else{
 	        	fm = (FAMAFeatureModel) gen.generateFM(characteristics);
 	        }
+	        //Benchmark b;
+			boolean customRestrictionsMet = false;
+			int restrCounter = 0;
+			while(!customRestrictionsMet && restrCounter < 20){
+				System.out.println("checking custom restrictions "+restrCounter); 	//
+		        customRestrictionsMet = customRestrictions(fm);
+		        //System.out.println(customRestrictionsMet);
+		        restrCounter++;
+		        if(!customRestrictionsMet){
+					seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
+					characteristics.setSeed(characteristics.getSeed()+seedIncr);
+			        gen = new FMGenerator();
+			        if(testForVoid){
+			        	genV = new OnlyValidModelSATGenerator(gen);
+			        	fm = (FAMAFeatureModel) genV.generateFM(characteristics);
+			        }else{
+			        	fm = (FAMAFeatureModel) gen.generateFM(characteristics);
+			        }
+		        }
+			}
 	        //boolean isVoid = true;
 	        
 /*	        while(testForVoid && isVoid){
@@ -239,6 +259,47 @@ public class AFMDatasetGenerator {
 		}
 		writeLog("./out/data/"+directory+"/dataset.txt", log.toString());
 		writeLog("./out/data/"+directory+"/hyvarrecInputScript.sh", hyvarrecInputScript.toString());
+	}
+	
+	private boolean customRestrictions(FAMAFeatureModel fm){
+		Feature root = fm.getRoot();
+		int depth = 5;
+		int paths = countMandAltPaths(fm, root, depth);
+		System.out.println(paths);
+		if(paths <= numberOfFeatures*0.15 || paths < depth+2) return false;
+		else return true;
+	}
+	
+	private int countMandAltPaths(FAMAFeatureModel fm, Feature root, int level){		
+		if (level == 0) {
+			//System.out.println("/");
+			return 1;
+		}
+		int paths = 1;
+		Iterator<Relation> relations = root.getRelations();
+		//System.out.println("("+level+") "+root+": ");
+		while(relations.hasNext()){
+			Relation rel = relations.next();
+			Iterator<Feature> children = rel.getDestination();
+			if(rel.isMandatory()){
+				while(children.hasNext()){
+					//System.out.print("!");
+					paths += countMandAltPaths(fm, children.next(), level-1);
+					//System.out.println("p: "+paths);
+				}
+			}else if(rel.isAlternative() || rel.isOr()){
+				int smallestRes = Integer.MAX_VALUE;
+				while(children.hasNext()){
+					//System.out.print("[");
+					int res = countMandAltPaths(fm, children.next(), level-1);
+					if(res < smallestRes) smallestRes = res;
+				}
+				paths += smallestRes;
+				//System.out.println("p: "+paths);
+				
+			}
+		}
+		return paths;
 	}
 	
 	private String createDirectory(){
