@@ -38,7 +38,7 @@ public class AFMparser implements VarModelContextParser{
 		context = new Context(1, contextMaxSize, contextMaxRange);
 		relations = new HashMap<Integer, String>();
 		relationCounter = 0;
-		attributes = new HashMap<String, String>();;
+		attributes = new HashMap<String, String>();
 		crossTreeConstraints = new HashMap<Integer, String>();;
 		ctcCounter = 0;
 		extendedConstraints = new HashMap<Integer, String>();;

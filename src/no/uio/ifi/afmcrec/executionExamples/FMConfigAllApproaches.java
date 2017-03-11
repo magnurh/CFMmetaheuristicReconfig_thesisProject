@@ -10,26 +10,27 @@ public class FMConfigAllApproaches {
 	
 	public static void main(String[] args){
 		
-//		String input = "./out/data/0308_TestingRulestructure/170308-125122/dataset.txt";
+		//String input = "./out/data/0308_TestingRulestructure/170308-125122/dataset.txt";
 		String[] inputs = {
-				"./out/data/0308_TestingGenAlg/170308-211340/dataset.txt"};
-		
+				"./out/data/0308_TestingGenAlg/170310-103306/dataset.txt"};
+	
 		for (int i = 0; i < inputs.length; i++){
+			System.out.println("----- "+i);
 			FMReconfigurer engine = new FMReconfigurer(inputs[i]);
-			//engine.applyHillClimbing();
-			//engine.applySimulatedAnnealing();
+			engine.applyHillClimbing();
+			engine.applySimulatedAnnealing();
 			engine.applyGeneticAlgorithm();
 			
 	
-			//engine.setHillClimbMaxPlateauIterations(10);
-			//engine.setHillClimbNumberOfExecutions(6);
+			engine.setHillClimbMaxPlateauIterations(10);
+			engine.setHillClimbNumberOfExecutions(6);
 			
-			//engine.setSimAnnealMaxIterations(9999*10);
-			//engine.setSimAnnealInitialTemperature(2.0);
+			engine.setSimAnnealMaxIterations(9999*10);
+			engine.setSimAnnealInitialTemperature(2.0);
 			
 			engine.setGeneticAlgInitialPopulationSize(256);
 			engine.setGeneticAlgCrossoverBreakPoints(4);
-			engine.setGeneticAlgMutationProbability(0.02);
+			engine.setGeneticAlgMutationProbability(0.04);
 			
 			engine.executeReconfig();
 		}

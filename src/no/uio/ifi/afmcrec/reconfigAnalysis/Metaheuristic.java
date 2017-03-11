@@ -489,6 +489,8 @@ public class Metaheuristic{
 					Candidate parent2 = generation.get(++i);
 					ArrayList<Candidate> children = crossover(parent1, parent2, crossOverBreakPoints, mutationProbability);
 					newGeneration.addAll(children);
+					newGeneration.add(parent1);			// This improves result but makes a more homogeneous group
+					newGeneration.add(parent2);			// This improves result but makes a more homogeneous group
 				}
 				generation = newGeneration;
 				//popSize -= 2;
@@ -559,8 +561,6 @@ public class Metaheuristic{
 		ArrayList<Candidate> result = new ArrayList<Candidate>();
 		result.add(c1);
 		result.add(c2);
-		result.add(parent1);			// This improves result but makes a more homogeneous group
-		result.add(parent2);			// This improves result but makes a more homogeneous group
 		return result;
 	}
 	
