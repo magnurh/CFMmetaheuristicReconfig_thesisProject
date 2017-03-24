@@ -120,7 +120,7 @@ public class AFMWithContext{
 				String newConstraint = "feature[_id"+parent+"] = 1 impl feature[_id"+children[i]+"] = 1";
 				constraints.add(newConstraint);
 			}
-			setOptionalConstraints(parent, children);
+			setOptionalConstraintsComplexRule(parent, children);
 		}
 	}
 	
@@ -161,7 +161,7 @@ public class AFMWithContext{
 		//String newConstraint2 = orGroup.concat(" impl feature[_id"+parent+"] = 1");
 		constraints.add(newConstraint1);
 		//constraints.add(newConstraint2);
-		setOptionalConstraints(parent, children);
+		setOptionalConstraintsComplexRule(parent, children);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -181,7 +181,7 @@ public class AFMWithContext{
 		newConstraint2 = newConstraint2.concat(" = 1)");
 		//constraints.add(newConstraint1);
 		constraints.add(newConstraint2);
-		setOptionalConstraints(parent, children);
+		setOptionalConstraintsComplexRule(parent, children);
 	}
 	
 	@SuppressWarnings("unchecked")
