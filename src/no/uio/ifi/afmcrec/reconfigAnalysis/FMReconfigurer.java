@@ -55,6 +55,7 @@ public class FMReconfigurer{
 	
 	TreeMap<String, Metaheuristic> results = new TreeMap<String, Metaheuristic>();
 	private ArrayList<String> hyvarrecResults = new ArrayList<String>();
+	private boolean[] isVoidIndex;
 	private int voidModels = 0;
 	
 	public FMReconfigurer(String input){
@@ -205,6 +206,7 @@ public class FMReconfigurer{
 						inputParameters.put(l[0], value);
 						if (l[0].equals("Size_dataSet")){
 							dataSetSize = value;
+							isVoidIndex = new boolean[dataSetSize];
 						}
 					}
 				}
@@ -221,6 +223,8 @@ public class FMReconfigurer{
 	private void writeResults(String input, int counter){
 		String timestamp = AFMDatasetGenerator.timeStamp();
 		String output = "./out/analyses/"+timestamp+"_analysis.txt";
+		
+		counter -= voidModels;
 		
 		int hcScoreSum = 0;
 		int hcIterSum = 0;
@@ -240,44 +244,47 @@ public class FMReconfigurer{
 		int geIterSumSuccesses = 0;
 		long geTotalTime = 0;
 		
+		int i = 0;
 		for (Metaheuristic m : results.values()){
-			int hcScore = m.getHillClimbResultScore();
-			int hcIter = m.getHillClimbIterations();
-			long hcTime = m.getHillClimbSolvingTime();
-			hcScoreSum += hcScore;
-			hcIterSum += hcIter;
-			hcTotalTime += hcTime; 
-			if (hcScore == 0) {
-				hcSuccesses++;
-				hcIterSumSuccesses += hcIter;
-			}
-			int saScore = m.getSimAnnealResultScore();
-			int saIter = m.getSimAnnealIterations();
-			long saTime = m.getSimAnnealSolvingTime();
-			saScoreSum += saScore;
-			saIterSum += saIter;
-			saTotalTime += saTime; 
-			if (saScore == 0) {
-				saSuccesses++;
-				saIterSumSuccesses += saIter;
-			}
-			int geScore = m.getGeneticAlgResultScore();
-			int geIter = m.getGeneticAlgIterations();
-			long geTime = m.getGeneticAlgSolvingTime();
-			geScoreSum += geScore;
-			geIterSum += geIter;
-			geTotalTime += geTime; 
-			if (geScore == 0) {
-				geSuccesses++;
-				geIterSumSuccesses += geIter;
+			if(i >= isVoidIndex.length || !isVoidIndex[i++]){
+				int hcScore = m.getHillClimbResultScore();
+				int hcIter = m.getHillClimbIterations();
+				long hcTime = m.getHillClimbSolvingTime();
+				hcScoreSum += hcScore;
+				hcIterSum += hcIter;
+				hcTotalTime += hcTime; 
+				if (hcScore == 0) {
+					hcSuccesses++;
+					hcIterSumSuccesses += hcIter;
+				}
+				int saScore = m.getSimAnnealResultScore();
+				int saIter = m.getSimAnnealIterations();
+				long saTime = m.getSimAnnealSolvingTime();
+				saScoreSum += saScore;
+				saIterSum += saIter;
+				saTotalTime += saTime; 
+				if (saScore == 0) {
+					saSuccesses++;
+					saIterSumSuccesses += saIter;
+				}
+				int geScore = m.getGeneticAlgResultScore();
+				int geIter = m.getGeneticAlgIterations();
+				long geTime = m.getGeneticAlgSolvingTime();
+				geScoreSum += geScore;
+				geIterSum += geIter;
+				geTotalTime += geTime; 
+				if (geScore == 0) {
+					geSuccesses++;
+					geIterSumSuccesses += geIter;
+				}
 			}
 		}
 		
-/*		System.out.println("Sum score: "+score_Sum);
-		System.out.println("Sum iterations: "+iter_Sum);
-		System.out.println("Successes: "+successes);
-		System.out.println("Sum iterations successes: "+iter_Sum_Successes);
-		System.out.println("Total count: "+counter);*/
+		System.out.println("Sum score: "+saScoreSum);
+		System.out.println("Sum iterations: "+saIterSum);
+		System.out.println("Successes: "+saSuccesses);
+		System.out.println("Sum iterations successes: "+saIterSumSuccesses);
+		System.out.println("Total count: "+counter);
 		
 		double hcSuccessRate = hcSuccesses*1.0/counter;
 		double hcAvgDist = hcScoreSum*1.0/counter;
@@ -304,62 +311,76 @@ public class FMReconfigurer{
 			FileWriter an = new FileWriter(new File(output));
 			an.write(output+"\n");
 			an.write(input+"\n");
+			an.write("Models: "+counter+" (void: "+voidModels+")\n");
 			for (String par : inputParameters.keySet()){
 				an.write(par+": "+inputParameters.get(par)+"\n");
 			}
 			an.write("\nHILL-CLIMBING\n");
-			an.write("Allowed_plateau_iterations: "+hillClimbPlateauIterations+"\n");
-			an.write("Number_of_random_retries: "+hillClimbNumberOfExecutions+"\n");
-			an.write("SuccessRate: "+hcSuccessRate+"\n");
-			an.write("Avg_distance_from_global_optimal: "+hcAvgDist+"\n");
-			an.write("Avg_Iterations: "+hcAvgIter+"\n");
-			an.write("-Success_cases: "+hcAvgIterSucc+"\n");
-			an.write("-Non-success_cases: "+hcAvgIterNonSucc+"\n");
-			an.write("Avg_SolvingTime: "+hcAvgSolvingTime+"\n");
+			if(useHillClimbing){
+				an.write("Allowed_plateau_iterations: "+hillClimbPlateauIterations+"\n");
+				an.write("Number_of_random_retries: "+hillClimbNumberOfExecutions+"\n");
+				an.write("SuccessRate: "+String.format("%.3f", hcSuccessRate)+"\n");
+				an.write("Avg_distance_from_global_optimal: "+String.format("%.3f", +hcAvgDist)+"\n");
+				an.write("Avg_Iterations: "+String.format("%.2f", hcAvgIter)+"\n");
+				an.write("-Success_cases: "+String.format("%.2f", hcAvgIterSucc)+"\n");
+				an.write("-Non-success_cases: "+String.format("%.2f", hcAvgIterNonSucc)+"\n");
+				an.write("Avg_SolvingTime: "+hcAvgSolvingTime+"\n");
+			}else{
+				an.write("--Not used--\n");
+			}
 			
 			an.write("\nSIMULATED ANNEALING\n");
-			an.write("Max_iterations: "+simAnnealMaxIterations+"\n");
-			an.write("Initial_temperature: "+simAnnealInitialTemp+"\n");
-			an.write("SuccessRate: "+saSuccessRate+"\n");
-			an.write("Avg_distance_from_global_optimal: "+saAvgDist+"\n");
-			an.write("Avg_Iterations: "+saAvgIter+"\n");
-			an.write("-Success_cases: "+saAvgIterSucc+"\n");
-			an.write("-Non-success_cases: "+saAvgIterNonSucc+"\n");
-			an.write("Avg_SolvingTime: "+saAvgSolvingTime+"\n");
+			if(useSimulatedAnnealing){
+				an.write("Max_iterations: "+simAnnealMaxIterations+"\n");
+				an.write("Initial_temperature: "+simAnnealInitialTemp+"\n");
+				an.write("SuccessRate: "+String.format("%.3f", saSuccessRate)+"\n");
+				an.write("Avg_distance_from_global_optimal: "+String.format("%.3f", saAvgDist)+"\n");
+				an.write("Avg_Iterations: "+String.format("%.2f", saAvgIter)+"\n");
+				an.write("-Success_cases: "+String.format("%.2f", saAvgIterSucc)+"\n");
+				an.write("-Non-success_cases: "+String.format("%.2f", saAvgIterNonSucc)+"\n");
+				an.write("Avg_SolvingTime: "+saAvgSolvingTime+"\n");
+			}else{
+				an.write("--Not used--\n");
+			}
+			
 			
 			an.write("\nGENETIC ALGORITHM\n");
-			an.write("Init_Pop_Size: "+geneticAlgInitPopSize+"\n");
-			an.write("Crossover_points: "+geneticAlgCrossoverBreakPoints+"\n");
-			an.write("Mutation_prob: "+geneticAlgMutationProbability+"\n");
-			an.write("SuccessRate: "+geSuccessRate+"\n");
-			an.write("Avg_distance_from_global_optimal: "+geAvgDist+"\n");
-			an.write("Avg_Iterations: "+geAvgIter+"\n");
-			an.write("-Success_cases: "+geAvgIterSucc+"\n");
-			an.write("-Non-success_cases: "+geAvgIterNonSucc+"\n");
-			an.write("Avg_SolvingTime: "+geAvgSolvingTime+"\n");
+			if(useGeneticAlgorithm){
+				an.write("Init_Pop_Size: "+geneticAlgInitPopSize+"\n");
+				an.write("Crossover_points: "+geneticAlgCrossoverBreakPoints+"\n");
+				an.write("Mutation_prob: "+geneticAlgMutationProbability+"\n");
+				an.write("SuccessRate: "+String.format("%.3f", geSuccessRate)+"\n");
+				an.write("Avg_distance_from_global_optimal: "+String.format("%.3f", geAvgDist)+"\n");
+				an.write("Avg_Iterations: "+String.format("%.2f", geAvgIter)+"\n");
+				an.write("-Success_cases: "+String.format("%.2f", geAvgIterSucc)+"\n");
+				an.write("-Non-success_cases: "+String.format("%.2f", geAvgIterNonSucc)+"\n");
+				an.write("Avg_SolvingTime: "+geAvgSolvingTime+"\n");
+			}else{
+				an.write("--Not used--\n");
+			}
 			
 			an.write("\nMODEL\t\tAPPROACH\tTIME\tITERATIONS\tSCORE\tRESULT");
 			int index = 0;
 			int sizeAFM = inputParameters.get("Size_AFM");
 			for(String modelname : results.keySet()){
-				for (int i = 0; i < approaches.length; i++){
+				for (int j = 0; j < approaches.length; j++){
 					Metaheuristic m = results.get(modelname);
-					if(approaches[i].equals("HC")){
+					if(approaches[j].equals("HC")){
 						String result = resultAsString(m.getHillClimbResultVector(), sizeAFM);
 						String time = convertNanoToTimeFormat(m.getHillClimbSolvingTime());
 						an.write("\n"+modelname+"\tHC\t"+time+"\t"+m.getHillClimbIterations()+"\t"+m.getHillClimbResultScore()+"\t"+result);
-					}else if(approaches[i].equals("SA")){
+					}else if(approaches[j].equals("SA")){
 						String result = resultAsString(m.getSimAnnealResultVector(), sizeAFM);
 						String time = convertNanoToTimeFormat(m.getSimAnnealSolvingTime());
 						an.write("\n"+modelname+"\tSA\t"+time+"\t"+m.getSimAnnealIterations()+"\t"+m.getSimAnnealResultScore()+"\t"+result);
-					}else if(approaches[i].equals("GE")){
+					}else if(approaches[j].equals("GE")){
 						String result = resultAsString(m.getGeneticAlgResultVector(), sizeAFM);
 						String time = convertNanoToTimeFormat(m.getGeneticAlgSolvingTime());
 						an.write("\n"+modelname+"\tGE\t"+time+"\t"+m.getGeneticAlgIterations()+"\t"+m.getGeneticAlgResultScore()+"\t"+result);
 					}else if (index < hyvarrecResults.size()){
 						int[] hyvarrecRes = transformHyvarrecResult(hyvarrecResults.get(index), m.FM.getCandidateLength());
 						String result = resultAsString(hyvarrecRes, sizeAFM);
-						an.write("\n"+modelname+"\t"+approaches[i]+"\t\t\t\t\t"+result);
+						an.write("\n"+modelname+"\t"+approaches[j]+"\t\t\t\t\t"+result);
 					}
 				}
 				index++;
@@ -611,8 +632,12 @@ public class FMReconfigurer{
 				String line = "";
 				try{
 					BufferedReader file = new BufferedReader(new FileReader(filePath));
+					int i = 0;
 					while((line = file.readLine()) != null){
-						if(line.compareTo("{\"result\":\"unsat\"}") == 0) voidModels++;
+						if(line.compareTo("{\"result\":\"unsat\"}") == 0) {
+							if (i < isVoidIndex.length) isVoidIndex[i] = true;
+							voidModels++;
+						}
 						hyvarrecResults.add(line);
 					}
 					file.close();
