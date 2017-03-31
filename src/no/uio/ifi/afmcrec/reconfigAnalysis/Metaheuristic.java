@@ -527,6 +527,302 @@ public class Metaheuristic{
 		return best.score();
 	}
 	
+	public int geneticAlgorithmV2(int initPopSize, int crossOverBreakPoints, double mutationProbability){
+		int popSize = initPopSize;
+		if (initPopSize % 2 != 0) popSize--;
+		
+		Candidate best = new Candidate(FM, FM.generateCandidate());
+		ArrayList<Candidate> generation = FM.generateCandidates(popSize);
+		
+		double generalFitness = Double.MAX_VALUE;
+		double bestGeneralFitness = generalFitness;
+		
+		int termCount = 0;
+		
+		while(best.score() > 0 && popSize > 1 && termCount < 40){
+			geneticAlgTotalIterations++;
+			//System.out.println(geneticAlgTotalIterations+" GenerationSize: "+generation.size());
+			
+			boolean globalOptFound = false;
+			//System.out.println(geneticAlgTotalIterations+" size: "+generation.size());
+			for(Candidate p : generation){
+				//System.out.print(p.score()+",");
+				if(p.score() < best.score()){
+					best = p;
+					if (best.score() == 0) {
+						globalOptFound = true;
+						break;		// No need to go through the rest of the iteration
+					}
+				}
+			}
+			//System.out.println();
+			if(!globalOptFound){
+				generation = naturalSelection(generation, popSize, 0.03);
+				//System.out.println(geneticAlgTotalIterations+" size: "+generation.size());
+				double newGeneralFitness = calculateGeneralFitness(generation);
+				if(newGeneralFitness >= bestGeneralFitness) {
+					termCount++;
+				}
+				else bestGeneralFitness = newGeneralFitness;
+				generalFitness = newGeneralFitness;
+				
+				
+				//System.out.println(geneticAlgTotalIterations+" General fitness: "+generalFitness+", Best: "+best.score());
+				
+				ArrayList<Candidate> newGeneration = new ArrayList<Candidate>();
+				for(int i = 0; i < popSize; i++){
+					int pIndex1 = ThreadLocalRandom.current().nextInt(0, generation.size());
+					int pIndex2 = ThreadLocalRandom.current().nextInt(0, generation.size());
+					while (pIndex1 == pIndex2) pIndex2 = ThreadLocalRandom.current().nextInt(0, generation.size());
+					Candidate parent1 = generation.get(pIndex1);
+					Candidate parent2 = generation.get(pIndex2);
+					ArrayList<Candidate> children = crossover(parent1, parent2, crossOverBreakPoints, mutationProbability);
+					newGeneration.addAll(children);
+					//newGeneration.add(parent1);			// This improves result but makes a more homogeneous group
+					//newGeneration.add(parent2);			// This improves result but makes a more homogeneous group
+				}
+				/* Elitism */
+				//int elites = 10;
+				//int elites = popSize/10;
+				int elites = 5;
+				for(int i = 0; i < elites; i++){
+					Candidate elite = generation.get(i);
+					//System.out.println(elite.score());
+/*					while(newGeneration.contains(elite)){
+						elites++;
+						elite = generation.get(++i);
+					}*/
+					newGeneration.add(elite);
+					//System.out.println("I:"+i);
+				}
+				
+				generation = newGeneration;
+				//popSize -= 2;
+			}
+			
+		}
+		
+		//
+/*		if (best.score() > 0){
+			System.out.println("Score: "+best.score()+", Iterations: "+geneticAlgTotalIterations);
+			for(Candidate p: generation){
+				int[] config = p.getCandidateVector();
+				System.out.println(FMReconfigurer.resultAsString(config, FM.getNumberOfFeatures()));
+			}
+		}*/
+		//
+		
+		if(best.score() < geneticAlgBestScore){
+			geneticAlgBestScore = best.score();
+			geneticAlgBestVector = best.getCandidateVector();
+		}
+		
+		return best.score();
+	}
+
+	/* Preferred version */
+	public int geneticAlgorithm(int initPopSize, int crossOverBreakPoints, double mutationProbability){
+		int popSize = initPopSize;
+		if (initPopSize % 2 != 0) popSize--;
+		
+		Candidate best = new Candidate(FM, FM.generateCandidate());
+		ArrayList<Candidate> generation = FM.generateCandidates(popSize);
+		
+		double generalFitness = Double.MAX_VALUE;
+		double bestGeneralFitness = generalFitness;
+		
+		int termCount = 0;
+		
+		while(best.score() > 0 && popSize > 1 && termCount < 200){
+			geneticAlgTotalIterations++;
+			//System.out.println(geneticAlgTotalIterations+" GenerationSize: "+generation.size());
+			
+			boolean globalOptFound = false;
+			//System.out.println(geneticAlgTotalIterations+" size: "+generation.size());
+			for(Candidate p : generation){
+				//System.out.print(p.score()+",");
+				if(p.score() < best.score()){
+					best = p;
+					if (best.score() == 0) {
+						globalOptFound = true;
+						break;		// No need to go through the rest of the iteration
+					}
+				}
+			}
+			//System.out.println();
+			if(!globalOptFound){
+				generation = naturalSelection(generation, popSize, 0.08);
+				//System.out.println(geneticAlgTotalIterations+" size: "+generation.size());
+				double newGeneralFitness = calculateGeneralFitness(generation);
+				if(newGeneralFitness >= bestGeneralFitness) {
+					termCount++;
+				}
+				else bestGeneralFitness = newGeneralFitness;
+				generalFitness = newGeneralFitness;
+				
+				
+				//System.out.println(geneticAlgTotalIterations+" General fitness: "+generalFitness+", Best: "+best.score());
+				
+				ArrayList<Candidate> newGeneration = new ArrayList<Candidate>();
+				for(int i = 0; i < popSize; i++){
+					Candidate parent1 = tournamentSelectionWithoutReplacement(generation, 6);
+					Candidate parent2 = tournamentSelectionWithoutReplacement(generation, 6);
+					ArrayList<Candidate> children = crossover(parent1, parent2, crossOverBreakPoints, mutationProbability);
+					newGeneration.addAll(children);
+					//newGeneration.add(parent1);			// This improves result but makes a more homogeneous group
+					//newGeneration.add(parent2);			// This improves result but makes a more homogeneous group
+				}
+				/* Elitism */
+				//int elites = 10;
+				//int elites = popSize/10;
+				int elites = 5;
+				for(int i = 0; i < elites; i++){
+					Candidate elite = generation.get(i);
+					//System.out.println(elite.score());
+/*					while(newGeneration.contains(elite)){
+						elites++;
+						elite = generation.get(++i);
+					}*/
+					newGeneration.add(elite);
+					//System.out.println("I:"+i);
+				}
+				
+				generation = newGeneration;
+				//popSize -= 2;
+			}
+			
+		}
+		
+		//
+/*		if (best.score() > 0){
+			System.out.println("Score: "+best.score()+", Iterations: "+geneticAlgTotalIterations);
+			for(Candidate p: generation){
+				int[] config = p.getCandidateVector();
+				System.out.println(FMReconfigurer.resultAsString(config, FM.getNumberOfFeatures()));
+			}
+		}*/
+		//
+		
+		if(best.score() < geneticAlgBestScore){
+			geneticAlgBestScore = best.score();
+			geneticAlgBestVector = best.getCandidateVector();
+		}
+		if(best.score() == 0) printEvolution(best, "0");
+		return best.score();
+	}
+	
+	/** Time consuming and not better than V3
+	 */
+	public int geneticAlgorithmV4(int popSize, int crossOverBreakPoints, double mutationProbability){
+		
+		double crossoverProb = 0.75;
+		ArrayList<Candidate> generation = FM.generateCandidates(popSize);
+		Candidate best = generation.get(ThreadLocalRandom.current().nextInt(generation.size()));
+		double generalFitness = Double.MAX_VALUE;
+		double bestGeneralFitness = generalFitness;
+		
+		int termCount = 0;
+		while(best.score() > 0 && popSize > 1 && termCount < 100){
+			geneticAlgTotalIterations++;
+			boolean globalOptFound = false;
+			for(Candidate p : generation){
+				if(p.score() < best.score()){
+					best = p;
+					if (best.score() == 0) {
+						globalOptFound = true;
+						break;		// No need to go through the rest of the iteration
+					}
+				}
+			}
+			if(!globalOptFound){
+				double newGeneralFitness = calculateGeneralFitness(generation);
+				if(newGeneralFitness >= bestGeneralFitness) {
+					termCount++;
+				}
+				else {
+					bestGeneralFitness = newGeneralFitness;
+					termCount = 0;
+				}
+				generalFitness = newGeneralFitness;
+				
+				for(int i = 0; i < popSize; i++){
+					Candidate parent1 = tournamentSelectionWithoutReplacement(generation, 6);
+					Candidate parent2 = tournamentSelectionWithoutReplacement(generation, 6);
+					ArrayList<Candidate> children = crossover(parent1, parent2, crossOverBreakPoints, mutationProbability);
+					for(Candidate c: children){
+						tournamentReplacement(generation, c, 6); //Instant natural selection
+					}
+					i++;
+				}
+			}
+			
+		}
+		if(best.score() < geneticAlgBestScore){
+			geneticAlgBestScore = best.score();
+			geneticAlgBestVector = best.getCandidateVector();
+		}
+		
+		return best.score();
+	}
+	
+	private void tournamentReplacement(ArrayList<Candidate> generation, Candidate newCand, int tournamentSize) {
+		int worstScore = -1;
+		Candidate worst = null;
+		int worstIndex = 0;
+		for(int i = 0; i < tournamentSize; i++){
+			int compIndex = ThreadLocalRandom.current().nextInt(0, generation.size());
+			Candidate competitor = generation.get(compIndex);
+			if(competitor.score() > worstScore){
+				worstScore = competitor.score();
+				worst = competitor;
+				worstIndex = compIndex;
+			}
+		}
+		if(worst != null){
+			generation.remove(worstIndex);
+			generation.add(worstIndex, newCand);
+		}else{
+			System.err.println("Tournament replacement failed");
+		}
+		
+	}
+
+	private Candidate tournamentSelectionWithoutReplacement(ArrayList<Candidate> generation, int tournamentSize){
+		int bestScore = Integer.MAX_VALUE;
+		Candidate best = null;
+		for(int i = 0; i < tournamentSize; i++){
+			int compIndex = ThreadLocalRandom.current().nextInt(0, generation.size());
+			Candidate competitor = generation.get(compIndex);
+			if(competitor.score() < bestScore){
+				bestScore = competitor.score();
+				best = competitor;
+			}
+		}
+		return best;
+	}
+	
+	private Candidate tournamentSelectionWithReplacement(ArrayList<Candidate> generation, int tournamentSize){
+		int bestScore = Integer.MAX_VALUE;
+		Candidate best = null;
+		int bestIndex = 0;
+		for(int i = 0; i < tournamentSize; i++){
+			int compIndex = ThreadLocalRandom.current().nextInt(0, generation.size());
+			Candidate competitor = generation.get(compIndex);
+			if(competitor.score() < bestScore){
+				bestScore = competitor.score();
+				best = competitor;
+				bestIndex = compIndex;
+			}
+		}
+		if (best != null){
+			generation.remove(bestIndex);
+			generation.add(new Candidate(FM, FM.generateCandidate()));
+		}else{
+			System.err.println("Tournament with replacement failed");
+		}
+		return best;
+	}
+	
 	private ArrayList<Candidate> crossover(Candidate parent1, Candidate parent2, int noBreakPoints, double mutationProbability){
 		int vectLength = parent1.getCandidateVector().length;
 		if(vectLength != parent2.getCandidateVector().length) {
