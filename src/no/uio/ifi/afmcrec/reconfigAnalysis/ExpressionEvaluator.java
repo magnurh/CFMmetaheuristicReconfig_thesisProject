@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.*;
 
-public class ExpressionEvaluation{
+public class ExpressionEvaluator{
 	
 	private HashMap<String, HashMap<String, Boolean>> expressionsEvaluated = new HashMap<String, HashMap<String, Boolean>>();
 	private HashMap<String, HashMap<String, Boolean>> expressionsEvaluated2 = new HashMap<String, HashMap<String, Boolean>>();
@@ -38,7 +38,7 @@ public class ExpressionEvaluation{
 	
 	private static Pattern contextPattern = Pattern.compile("\\(context\\[_idc\\d+\\] ([!><]=|[=><])  \\d+\\s\\)");
 	
-	ExpressionEvaluation(FeatureModel fm){
+	ExpressionEvaluator(FeatureModel fm){
 		this.fm = fm;
 	}
 	
