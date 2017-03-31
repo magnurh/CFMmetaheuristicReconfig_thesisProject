@@ -582,7 +582,7 @@ public class FMReconfigurer{
 				Iterator features = featureArr.iterator();
 				while(features.hasNext()){
 					String f = (String) features.next();
-					int i = ExpressionEvaluation.getInt(f);
+					int i = ExpressionEvaluator.getInt(f);
 					if(i != -1 && i < result.length) result[i] = 1;
 				}
 				JSONArray attributeArr = (JSONArray) JSONRes.get("attributes");
@@ -591,7 +591,7 @@ public class FMReconfigurer{
 					JSONObject a = (JSONObject) attributes.next();
 					String id = (String) a.get("id");
 					String value = (String) a.get("value");
-					int i = ExpressionEvaluation.getInt(id);
+					int i = ExpressionEvaluator.getInt(id);
 					if(i != -1 && i < result.length){
 						if(value.equals("None")){
 							//TODO: Check what None means in hyvarrec
@@ -695,7 +695,7 @@ public class FMReconfigurer{
 	
 	private static void test(FeatureModel fm){
 		
-		ExpressionEvaluation eval = new ExpressionEvaluation(fm);
+		ExpressionEvaluator eval = new ExpressionEvaluator(fm);
 		
 		int[] val1 = new int[]{1,1,0,0,1,2};
 		int[] val2 = new int[]{0,1,0,0,0,3};

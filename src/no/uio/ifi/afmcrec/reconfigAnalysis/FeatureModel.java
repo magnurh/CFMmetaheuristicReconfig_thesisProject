@@ -227,7 +227,7 @@ public class FeatureModel{
 	
 	private void populateIndexOfIdsBelongingToConstraints(){
 		for(int i = 0; i < constraints.size(); i++){
-			ArrayList<Integer> idsInThisConstraint = ExpressionEvaluation.getAllFeatAndAttrIds(constraints.get(i));
+			ArrayList<Integer> idsInThisConstraint = ExpressionEvaluator.getAllFeatAndAttrIds(constraints.get(i));
 			for (int j : idsInThisConstraint){
 				ArrayList<Integer> constraintNumbers = idsInConstraints.get(j);
 				constraintNumbers.add(i);

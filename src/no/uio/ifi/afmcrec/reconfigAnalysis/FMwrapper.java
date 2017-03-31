@@ -18,7 +18,7 @@ public class FMwrapper{
 	
 	private FeatureModel fm;
 	private String modelName;
-	public ExpressionEvaluation eval;
+	public ExpressionEvaluator eval;
 	private int numberOfFeatures;
 	private int numberOfAttributes;
 	private int candidateLength;
@@ -32,7 +32,7 @@ public class FMwrapper{
 	FMwrapper(String dir, String modelName, int numberOfFeatures, int numberOfAttributes, int size, int contextSize){
 		fm = importFM(dir+"/"+modelName, size);
 		this.modelName = modelName;
-		eval = new ExpressionEvaluation(fm);
+		eval = new ExpressionEvaluator(fm);
 		this.numberOfFeatures = numberOfFeatures;
 		fm.setNumberOfFeatures(numberOfFeatures);
 		this.numberOfAttributes = numberOfAttributes;
