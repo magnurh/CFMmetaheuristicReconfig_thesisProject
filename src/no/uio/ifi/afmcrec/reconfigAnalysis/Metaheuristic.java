@@ -452,12 +452,12 @@ public class Metaheuristic{
 	 * try not add parent - instead increase number of children ?
 	 * 
 	*/
-	public int geneticAlgorithm(int initPopSize, int crossOverBreakPoints, double mutationProbability){
+	public int geneticAlgorithmOLD(int initPopSize, int crossOverBreakPoints, double mutationProbability){
 		int popSize = initPopSize;
 		if (initPopSize % 2 != 0) popSize--;
 		
-		Candidate best = new Candidate(FM, FM.generateCandidate());
 		ArrayList<Candidate> generation = FM.generateCandidates(popSize*4);
+		Candidate best = generation.get(ThreadLocalRandom.current().nextInt(generation.size()));
 		
 		double generalFitness = Double.MAX_VALUE;
 		double bestGeneralFitness = generalFitness;
@@ -482,7 +482,7 @@ public class Metaheuristic{
 			}
 			//System.out.println();
 			if(!globalOptFound){
-				generation = naturalSelection(generation, popSize);
+				generation = naturalSelection(generation, popSize, 0.03);
 				//System.out.println(geneticAlgTotalIterations+" size: "+generation.size());
 				double newGeneralFitness = calculateGeneralFitness(generation);
 				if(newGeneralFitness >= bestGeneralFitness) {
@@ -918,18 +918,17 @@ public class Metaheuristic{
 			i++;
 		}
 		if(generation.size() > i){
-			int replacements = popSize/64;
-			for(int j = 0; j < replacements; j++){
+			int introductions = (int) (popSize*selectionRate);
+/*			for(int j = 0; j < introductions; j++){
 				int toBeReplaced = ThreadLocalRandom.current().nextInt(5, i);
 				int toReplace = ThreadLocalRandom.current().nextInt(i, generation.size());
 				newSelection.remove(toBeReplaced);
 				newSelection.add(toBeReplaced, generation.get(toReplace));
-			}
+			}*/
 			//System.out.println();
 			
 			// Introducing foreign genes
-			int inttroducedSpecies = popSize/64;
-			for(int j = 0; j < inttroducedSpecies; j++){
+			for(int j = 0; j < introductions; j++){
 				int toBeReplaced = ThreadLocalRandom.current().nextInt(5, i);
 				//int toReplace = ThreadLocalRandom.current().nextInt(i, generation.size());
 				newSelection.remove(toBeReplaced);
@@ -963,7 +962,7 @@ public class Metaheuristic{
 			}
 		}*/
 		//System.out.println("New Gen size: "+newSelection.size());		//
-		Collections.shuffle(newSelection);
+		//Collections.shuffle(newSelection);
 		return newSelection;
 	}
 	
