@@ -393,12 +393,14 @@ public class Metaheuristic{
 		double reductionRate = t/maxIterations;
 		double k = 1.0;
 		
+		System.out.println("RedRate: "+reductionRate);
+		
 		Candidate candidate = new Candidate(FM, candidateVector);
 		Candidate best = candidate;
 		
 		while(best.score() > 0 && k < kMax){
-			t = t-reductionRate;  
-
+			System.out.print("iteration: "+k+", t: "+t+", current: ");
+			System.out.println(candidate.getConfigAsString()+"\t"+candidate.score()+"\n");
 			ArrayList<Integer> shuffledNeighborhoodIndexes = FM.getShuffledNeighborhoodIndexes();
 			for (int i = 0; i < shuffledNeighborhoodIndexes.size(); i++){
 				Candidate neighbor = candidate.getNeighbor(shuffledNeighborhoodIndexes.get(i));
@@ -418,6 +420,7 @@ public class Metaheuristic{
 				}
 			}
 			k++;
+			t -= reductionRate;  
 		}
 		simAnnealTotalIterations += k;
 		if(best.score() < simAnnealBestScore){
