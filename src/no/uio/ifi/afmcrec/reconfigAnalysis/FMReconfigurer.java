@@ -53,7 +53,7 @@ public class FMReconfigurer{
 	private ArrayList<String> modelNames = new ArrayList<String>();
 	HashMap<String, Integer> inputParameters = new HashMap<String, Integer>();
 	
-	TreeMap<String, Metaheuristic> results = new TreeMap<String, Metaheuristic>();
+	TreeMap<String, Solver> results = new TreeMap<String, Solver>();
 	private ArrayList<String> hyvarrecResults = new ArrayList<String>();
 	private boolean[] isVoidIndex;
 	private int voidModels = 0;
@@ -121,7 +121,7 @@ public class FMReconfigurer{
 	}
 
 	
-	private void executeMetaheuristics(FMwrapper fm, Metaheuristic solver){
+	private void executeMetaheuristics(FMwrapper fm, Solver solver){
 		//TODO: Consider making list of candidates as shared starting point for all approaches
 		
 		if(useHillClimbing){
@@ -189,7 +189,7 @@ public class FMReconfigurer{
 					int contextSize = Integer.parseInt(mData[4]);
 					
 					FMwrapper fm = new FMwrapper(dir, modelName, noFeatures, noAttributes, size, contextSize);
-					Metaheuristic solver = new Metaheuristic(fm);
+					Solver solver = new Solver(fm);
 					
 					executeMetaheuristics(fm, solver);
 					results.put(modelName, solver);
@@ -245,7 +245,7 @@ public class FMReconfigurer{
 		long geTotalTime = 0;
 		
 		int i = 0;
-		for (Metaheuristic m : results.values()){
+		for (Solver m : results.values()){
 			if(i >= isVoidIndex.length || !isVoidIndex[i++]){
 				int hcScore = m.getHillClimbResultScore();
 				int hcIter = m.getHillClimbIterations();
@@ -364,7 +364,7 @@ public class FMReconfigurer{
 			int sizeAFM = inputParameters.get("Size_AFM");
 			for(String modelname : results.keySet()){
 				for (int j = 0; j < approaches.length; j++){
-					Metaheuristic m = results.get(modelname);
+					Solver m = results.get(modelname);
 					if(approaches[j].equals("HC")){
 						String result = resultAsString(m.getHillClimbResultVector(), sizeAFM);
 						String time = convertNanoToTimeFormat(m.getHillClimbSolvingTime());

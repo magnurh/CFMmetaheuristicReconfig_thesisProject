@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Metaheuristic{
+public class Solver{
 	
 	FMwrapper FM;
 	
@@ -30,7 +30,7 @@ public class Metaheuristic{
 	private int geneticAlgBestScore = Integer.MAX_VALUE;
 	private long geneticAlgSolvingTime;
 	
-	Metaheuristic(FMwrapper FM){
+	Solver(FMwrapper FM){
 		this.FM = FM;
 		nullifyLogValues();
 	}
