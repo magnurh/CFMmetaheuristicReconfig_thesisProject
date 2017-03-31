@@ -9,6 +9,11 @@ import java.util.HashSet;
 
 public class Candidate{
 	
+	//Parameters for tracking genetic evolution
+	Candidate[] parentsGA = null;
+	int[] breakPoints = null;
+	int mutations = 0;
+	
 	FMwrapper FM;
 	Candidate parent = null;
 	int neighborhoodNumber = -1;

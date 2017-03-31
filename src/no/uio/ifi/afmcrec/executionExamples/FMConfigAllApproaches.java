@@ -12,13 +12,13 @@ public class FMConfigAllApproaches {
 		
 		//String input = "./out/data/0308_TestingRulestructure/170308-125122/dataset.txt";
 		String[] inputs = {
-				"./out/data/0308_TestingGenAlg/170310-103306/dataset.txt"};
+				"./out/data/0314_TestingGenAlg/170326-141619/dataset.txt"};
 	
 		for (int i = 0; i < inputs.length; i++){
 			System.out.println("----- "+i);
 			FMReconfigurer engine = new FMReconfigurer(inputs[i]);
-			engine.applyHillClimbing();
-			engine.applySimulatedAnnealing();
+			//engine.applyHillClimbing();
+			//engine.applySimulatedAnnealing();
 			engine.applyGeneticAlgorithm();
 			
 	
@@ -30,7 +30,7 @@ public class FMConfigAllApproaches {
 			
 			engine.setGeneticAlgInitialPopulationSize(256);
 			engine.setGeneticAlgCrossoverBreakPoints(4);
-			engine.setGeneticAlgMutationProbability(0.04);
+			engine.setGeneticAlgMutationProbability(0.08);
 			
 			engine.executeReconfig();
 		}

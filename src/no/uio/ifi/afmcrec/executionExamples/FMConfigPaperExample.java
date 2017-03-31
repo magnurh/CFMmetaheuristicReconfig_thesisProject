@@ -9,17 +9,17 @@ public class FMConfigPaperExample {
 		System.out.println("Example from thesis paper: "+input);
 		FMReconfigurer engine = new FMReconfigurer(input);
 		
-		engine.applyHillClimbing();				
-		engine.applySimulatedAnnealing();
+		//engine.applyHillClimbing();				
+		//engine.applySimulatedAnnealing();
 		engine.applyGeneticAlgorithm();
 		
-		engine.setHillClimbMaxPlateauIterations(0);
+		engine.setHillClimbMaxPlateauIterations(3);
 		engine.setHillClimbNumberOfExecutions(1);
-		engine.setSimAnnealInitialTemperature(4.0);
-		engine.setSimAnnealMaxIterations(9999);
-		engine.setGeneticAlgCrossoverBreakPoints(1);
-		engine.setGeneticAlgInitialPopulationSize(128);
-		engine.setGeneticAlgMutationProbability(0.005);
+		engine.setSimAnnealInitialTemperature(2.0);
+		engine.setSimAnnealMaxIterations(20);
+		engine.setGeneticAlgCrossoverBreakPoints(2);
+		engine.setGeneticAlgInitialPopulationSize(8);
+		engine.setGeneticAlgMutationProbability(0.02);
 		engine.executeReconfig();
 
 	}

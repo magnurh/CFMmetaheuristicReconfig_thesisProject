@@ -293,6 +293,7 @@ public class Metaheuristic{
 		//int[] vectS = candidate.getCandidateVector();
 		int bestScore = candidate.score();
 		
+		
 /*		// -- New
 		if(bestScore != probablyBestScore){
 			System.err.println("Different scoring! correct: "+bestScore+", not correct: "+probablyBestScore);
@@ -303,11 +304,13 @@ public class Metaheuristic{
 			hillClimbTotalIterations++;
 			plateauVectors = new ArrayList<Candidate>();
 			ArrayList<Integer> shuffledNeighborhoodIndexes = FM.getShuffledNeighborhoodIndexes();
-			
+			//System.out.println("Selected:\n"+candidate.getConfigAsString()+"\t"+candidate.score());
+			//System.out.println(hillClimbTotalIterations+" - Neighbors: ");
 			for (int i = 0; i < shuffledNeighborhoodIndexes.size(); i++){
 				
 				// -- New
 				Candidate candX = candidate.getNeighbor(shuffledNeighborhoodIndexes.get(i));
+				if(candX != null) System.out.println(candX.getConfigAsString()+"\t"+candX.score());
 				// --
 				
 				//int[] vectX = FM.getNeighbor(candidate.getCandidateVector(), shuffledNeighborhoodIndexes.get(i));
@@ -327,6 +330,8 @@ public class Metaheuristic{
 						//vectS = vectX;
 						// -- New
 						candS = candX;
+						//System.out.println("New best");
+						//System.out.println(candS.getConfigAsString()+"\t"+candS.score());
 						// --
 						bestScore = scoreX;
 						plateauVectors = new ArrayList<Candidate>();
@@ -410,6 +415,9 @@ public class Metaheuristic{
 					//System.out.println(" = "+acceptanceProb); //
 					double threshold = ThreadLocalRandom.current().nextDouble();
 					//System.out.println(acceptanceProb+" > "+threshold+" : "+(acceptanceProb > threshold));
+					System.out.println(neighbor.getConfigAsString()+"\t"+neighbor.score()+"\t"+
+							"exp("+(candidate.score()-neighbor.score())+"/"+t+") = "
+							+Math.exp((candidate.score() - neighbor.score())/t)+" ( > "+threshold+")?");
 					if (acceptanceProb > threshold){
 						candidate = neighbor;
 						if (neighbor.score() < best.score()) {
@@ -533,6 +541,8 @@ public class Metaheuristic{
 		int[] childVector2 = new int[vectLength];
 		int[] parentToC1 = parent1.getCandidateVector();
 		int[] parentToC2 = parent2.getCandidateVector();
+		int c1Mutations = 0;
+		int c2Mutations = 0;
 		
 		for(int i = 0; i < vectLength; i++){
 			if(k < breakPoints.length && breakPoints[k] == i){
@@ -544,6 +554,7 @@ public class Metaheuristic{
 			double mutation = ThreadLocalRandom.current().nextDouble();
 			if(mutationProbability > mutation){
 				childVector1[i] = FM.tweak(i, parentToC1[i]);
+				c1Mutations++;
 				//System.out.println("Mutation ("+mutationProbability+" > "+mutation+"): "+parentToC1[i]+" --> "+childVector1[i]);
 			}else{
 				childVector1[i] = parentToC1[i];
@@ -551,6 +562,7 @@ public class Metaheuristic{
 			mutation = ThreadLocalRandom.current().nextDouble();
 			if(mutationProbability > mutation){
 				childVector2[i] = FM.tweak(i, parentToC2[i]);
+				c2Mutations++;
 				//System.out.println("Mutation ("+mutationProbability+" > "+mutation+"): "+parentToC2[i]+" --> "+childVector2[i]);
 			}else{
 				childVector2[i] = parentToC2[i];
@@ -558,7 +570,13 @@ public class Metaheuristic{
 		}
 		
 		Candidate c1 = new Candidate(FM, childVector1);
+		c1.parentsGA = new Candidate[]{parent1, parent2};
+		c1.breakPoints = breakPoints;
+		c1.mutations = c1Mutations;
 		Candidate c2 = new Candidate(FM, childVector2);
+		c2.parentsGA = new Candidate[]{parent1, parent2};
+		c2.breakPoints = breakPoints;
+		c2.mutations = c2Mutations;
 		//System.out.println("Parent score: "+parent1.score()+" & "+parent2.score()+", Child score: "+c1.score()+", "+c2.score());
 		//System.out.println(FM.eval.getVectorAsString(breakPoints));
 		ArrayList<Candidate> result = new ArrayList<Candidate>();
@@ -592,7 +610,7 @@ public class Metaheuristic{
 	}
 	
 	
-	private ArrayList<Candidate> naturalSelection(ArrayList<Candidate> generation, int popSize){
+	private ArrayList<Candidate> naturalSelection(ArrayList<Candidate> generation, int popSize, double selectionRate){
 		generation.sort((c1, c2) -> c1.score() - c2.score());
 		ArrayList<Candidate> newSelection = new ArrayList<Candidate>();
 		
@@ -651,6 +669,22 @@ public class Metaheuristic{
 		//System.out.println("New Gen size: "+newSelection.size());		//
 		Collections.shuffle(newSelection);
 		return newSelection;
+	}
+	
+	public void printEvolution(Candidate s, String path){
+		
+		System.out.println("p: "+path);
+		System.out.print(s.getConfigAsString()+"\t"+s.score()+"\t"+s.mutations+"\t");
+		if(s.breakPoints != null){
+			for(int i = 0; i < s.breakPoints.length; i++){
+				System.out.print(s.breakPoints[i]+",");
+			}
+		}
+		System.out.println();
+		if(s.parentsGA != null){
+			printEvolution(s.parentsGA[0], path+"-L");
+			printEvolution(s.parentsGA[1], path+"-R");
+		}
 	}
 	
 	public int evaluate(int[] candidate){
