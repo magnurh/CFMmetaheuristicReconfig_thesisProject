@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 
-public interface VarModelContextParser {
+public interface VarModelExtender {
 	
 	final int RELATION = 1;
 	final int ATTRIBUTE = 2;

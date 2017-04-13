@@ -17,7 +17,7 @@ import java.util.regex.Matcher;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class FMparser implements VarModelContextParser{
+public class FMextender implements VarModelExtender{
 
 	private int choice = RELATION;
 	
@@ -58,7 +58,7 @@ public class FMparser implements VarModelContextParser{
 		}
 	}
 	
-	public FMparser(int highestID, int contextMaxSize, int contextMaxRange, int maxNumberOfVFs, int attrMinRange, int attrMaxRange){
+	public FMextender(int highestID, int contextMaxSize, int contextMaxRange, int maxNumberOfVFs, int attrMinRange, int attrMaxRange){
 		context = new Context(1, contextMaxSize, contextMaxRange);
 		//relations = new HashMap<Integer, String>();
 		//relationCounter = 0;

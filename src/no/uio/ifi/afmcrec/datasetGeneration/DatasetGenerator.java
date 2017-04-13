@@ -18,7 +18,6 @@ import org.json.simple.JSONObject;
 import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
-import es.us.isa.BeTTy.Generators.OnlyValidModelMMGenerator;
 import es.us.isa.BeTTy.Generators.OnlyValidModelSATGenerator;
 import es.us.isa.FAMA.models.FAMAAttributedfeatureModel.FAMAAttributedFeatureModel;
 import es.us.isa.FAMA.models.FAMAfeatureModel.FAMAFeatureModel;
@@ -36,7 +35,7 @@ import es.us.isa.generator.FM.attributed.AttributedFMGenerator;
 import es.us.isa.utils.BettyException;
 import es.us.isa.utils.FMWriter;
 
-public class AFMDatasetGenerator {
+public class DatasetGenerator {
 	
 	String generalNameOfDataset;
 	
@@ -72,7 +71,7 @@ public class AFMDatasetGenerator {
 	private int maxNumberOfVFs = 12;
 	
 	
-	public AFMDatasetGenerator(String dataSetName){
+	public DatasetGenerator(String dataSetName){
 		this.generalNameOfDataset = dataSetName;
 	}
 	
@@ -146,7 +145,7 @@ public class AFMDatasetGenerator {
 	 * @throws Exception
 	 * @throws BettyException
 	 */
-	public void generateDataSetWithCustomAttributeFunction(boolean testForVoid) throws Exception, BettyException {
+	public void generateCFMDataSet(boolean testForVoid) throws Exception, BettyException {
 
 		String directory = createDirectory();
 		StringBuilder log = startLog(directory);
@@ -167,25 +166,28 @@ public class AFMDatasetGenerator {
 	        	fm = (FAMAFeatureModel) gen.generateFM(characteristics);
 	        }
 	        //Benchmark b;
-			boolean customRestrictionsMet = false;
+			int customRestrictionsScore = customRestrictions(fm);
 			int restrCounter = 0;
-			while(!customRestrictionsMet && restrCounter < 20){
+			FAMAFeatureModel fmTestRestr = fm;
+			while(customRestrictionsScore < 0 && restrCounter < 20){
 				System.out.println("checking custom restrictions "+restrCounter); 	//
-		        customRestrictionsMet = customRestrictions(fm);
-		        //System.out.println(customRestrictionsMet);
-		        restrCounter++;
-		        if(!customRestrictionsMet){
-					seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
-					characteristics.setSeed(characteristics.getSeed()+seedIncr);
-			        gen = new FMGenerator();
-			        if(testForVoid){
-			        	genV = new OnlyValidModelSATGenerator(gen);
-			        	fm = (FAMAFeatureModel) genV.generateFM(characteristics);
-			        }else{
-			        	fm = (FAMAFeatureModel) gen.generateFM(characteristics);
-			        }
+				seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
+				characteristics.setSeed(characteristics.getSeed()+seedIncr);
+		        gen = new FMGenerator();
+		        if(testForVoid){
+		        	genV = new OnlyValidModelSATGenerator(gen);
+		        	fmTestRestr = (FAMAFeatureModel) genV.generateFM(characteristics);
+		        }else{
+		        	fmTestRestr = (FAMAFeatureModel) gen.generateFM(characteristics);
 		        }
+		        int newRestrictionsScore = customRestrictions(fmTestRestr);
+		        if (newRestrictionsScore > customRestrictionsScore){
+		        	customRestrictionsScore = newRestrictionsScore;
+		        	fm = fmTestRestr;
+		        }
+		        restrCounter++;
 			}
+			System.out.println("CRS: "+customRestrictionsScore);
 	        //boolean isVoid = true;
 	        
 /*	        while(testForVoid && isVoid){
@@ -207,7 +209,7 @@ public class AFMDatasetGenerator {
 			FMWriter writer = new FMWriter();
 	        writer.saveFM(fm, fmFileDir);
 
-	        FMparser fmParser = new FMparser(numberOfFeatures-1, contextMaxSize, contextMaxValue, maxNumberOfVFs, minAttrRange, maxAttrRange);
+	        FMextender fmParser = new FMextender(numberOfFeatures-1, contextMaxSize, contextMaxValue, maxNumberOfVFs, minAttrRange, maxAttrRange);
 	        JSONObject afmcJSON = fmParser.generateAFMwithContext(fmFileDir);
 	        String jsonFilename = String.format("%04d", i)+"_aFMwC.json";
 	        writeJsonToFile(jsonFilename, directory, afmcJSON);
@@ -228,7 +230,7 @@ public class AFMDatasetGenerator {
 	 * @throws Exception
 	 * @throws BettyException
 	 */
-	public void generateDataSet() throws Exception, BettyException {
+	public void generateCFMDataSetWithoutRestrictions() throws Exception, BettyException {
 		
 		String directory = createDirectory();
 		StringBuilder log = startLog(directory);
@@ -248,7 +250,7 @@ public class AFMDatasetGenerator {
 			FMWriter writer = new FMWriter();
 	        writer.saveFM(afm, afmFileDir);
 	        
-	        AFMparser afmParser = new AFMparser(numberOfFeatures-1, contextMaxSize, contextMaxValue);
+	        AFMextender afmParser = new AFMextender(numberOfFeatures-1, contextMaxSize, contextMaxValue);
 	        JSONObject afmcJSON = afmParser.generateAFMwithContext(afmFileDir);
 	        String jsonFilename = String.format("%04d", i)+"_aFMwC.json";
 	        writeJsonToFile(jsonFilename, directory, afmcJSON);
@@ -261,13 +263,14 @@ public class AFMDatasetGenerator {
 		writeLog("./out/data/"+directory+"/hyvarrecInputScript.sh", hyvarrecInputScript.toString());
 	}
 	
-	private boolean customRestrictions(FAMAFeatureModel fm){
+	private int customRestrictions(FAMAFeatureModel fm){
 		Feature root = fm.getRoot();
 		int depth = 5;
 		int paths = countMandAltPaths(fm, root, depth);
 		System.out.println(paths);
-		if(paths <= numberOfFeatures*0.15 || paths < depth+2) return false;
-		else return true;
+		int threshold = Integer.max(Integer.min(30, (int) (numberOfFeatures*0.10)), depth);
+		System.out.println("t: "+threshold);
+		return paths - threshold;
 	}
 	
 	private int countMandAltPaths(FAMAFeatureModel fm, Feature root, int level){		
@@ -317,7 +320,7 @@ public class AFMDatasetGenerator {
         return hyvarrecInputScript;
 	}
 	
-	private StringBuilder updateLog(StringBuilder log, String fileName, VarModelContextParser parser){
+	private StringBuilder updateLog(StringBuilder log, String fileName, VarModelExtender parser){
         int noAttr = parser.getNumberOfAttributes();
         int totSize = parser.getHighestID()+1;
         int contextSize = parser.getContextSize();

@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class AFMparser implements VarModelContextParser{
+public class AFMextender implements VarModelExtender{
 
 	private int choice = RELATION;
 	
@@ -34,7 +34,7 @@ public class AFMparser implements VarModelContextParser{
 	private int incrementingID;
 	private int noAttributes = 0;
 	
-	public AFMparser(int highestID, int contextMaxSize, int contextMaxRange){
+	public AFMextender(int highestID, int contextMaxSize, int contextMaxRange){
 		context = new Context(1, contextMaxSize, contextMaxRange);
 		relations = new HashMap<Integer, String>();
 		relationCounter = 0;
