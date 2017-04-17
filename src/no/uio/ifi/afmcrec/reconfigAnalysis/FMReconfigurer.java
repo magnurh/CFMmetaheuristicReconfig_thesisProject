@@ -223,7 +223,7 @@ public class FMReconfigurer{
 	}
 	
 	private void writeResults(String input, int counter){
-		String timestamp = AFMDatasetGenerator.timeStamp();
+		String timestamp = DatasetGenerator.timeStamp();
 		String output = "./out/analyses/"+timestamp+"_analysis.txt";
 		
 		counter -= voidModels;
