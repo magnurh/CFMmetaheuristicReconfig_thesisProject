@@ -27,6 +27,7 @@ public class FMConfigAllApproaches {
 			
 			engine.setSimAnnealMaxIterations(9999*10);
 			engine.setSimAnnealInitialTemperature(2.0);
+			engine.setSimAnnealNumberOfExecutions(6);
 			
 			engine.setGeneticAlgInitialPopulationSize(256);
 			engine.setGeneticAlgCrossoverBreakPoints(4);

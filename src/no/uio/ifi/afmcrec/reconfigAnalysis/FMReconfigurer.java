@@ -790,6 +790,14 @@ public class FMReconfigurer{
 		simAnnealInitialTemp = initialTemperature;
 	}
 	
+	public void setSimAnnealNumberOfExecutions(int numberOfExecutions){
+		if (numberOfExecutions < 1){
+			System.err.println("Warning: Simulated Annealing cannot have less than 1 iteration");
+			useSimulatedAnnealing = false;
+		}
+		simAnnealNumberOfExecutions = numberOfExecutions;
+	}
+	
 	public void setGeneticAlgInitialPopulationSize(int size){
 		geneticAlgInitPopSize = size;
 	}
