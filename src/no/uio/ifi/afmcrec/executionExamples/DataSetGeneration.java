@@ -5,7 +5,7 @@
 package no.uio.ifi.afmcrec.executionExamples;
 
 import es.us.isa.utils.BettyException;
-import no.uio.ifi.afmcrec.datasetGeneration.AFMDatasetGenerator;
+import no.uio.ifi.afmcrec.datasetGeneration.DatasetGenerator;
 
 public class DataSetGeneration{
 	public static void main(String[] args){
@@ -27,7 +27,7 @@ public class DataSetGeneration{
 		int contextMaxValue = 10;
 		int maxNumberOfVFs = 12;
 		
-		AFMDatasetGenerator generator = new AFMDatasetGenerator(dataSetName);
+		DatasetGenerator generator = new DatasetGenerator(dataSetName);
 		generator.setMainParameters(sizeOfDataSet, numberOfFeatures, percentageOfCrossTreeConstraints, maxNumberOfVFs);
 		generator.setRelationshipParameters(mandatoryProbability, optionalProbability, alternativeProbability, orProbability);
 		generator.setMaxAttributeRange(attributeRangeFrom, attributeRangeTo);
@@ -42,7 +42,7 @@ public class DataSetGeneration{
 		}*/
 		
 		try {
-			generator.generateDataSetWithCustomAttributeFunction(true);
+			generator.generateCFMDataSet(true);
 		} catch (BettyException b) {
 			System.err.println(b.getMessage());
 		} catch (Exception e) {

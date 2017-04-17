@@ -19,7 +19,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import no.uio.ifi.afmcrec.datasetGeneration.AFMDatasetGenerator;
+import no.uio.ifi.afmcrec.datasetGeneration.DatasetGenerator;
 
 public class FMReconfigurer{
 	
@@ -93,7 +93,7 @@ public class FMReconfigurer{
 	}*/
 	
 	public void executeReconfig2(String input){
-		String timestamp = AFMDatasetGenerator.timeStamp();
+		String timestamp = DatasetGenerator.timeStamp();
 		String output = "./out/analyses/"+timestamp+"_analysis.txt";
 		
 		try{
