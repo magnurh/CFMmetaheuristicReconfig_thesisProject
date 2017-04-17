@@ -164,6 +164,15 @@ public class FMwrapper{
 		return newCandidate;
 	}
 	
+	public int[] generateTrivialCandidate() {
+		int[] newCandidate = new int[candidateLength];
+		Iterator<Integer> select = alwaysSelected.iterator();
+		while(select.hasNext()){
+			newCandidate[select.next()] = 1;
+		}
+		return newCandidate;
+	}
+	
 	public ArrayList<Candidate> generateCandidates(int size){
 		ArrayList<Candidate> candidates = new ArrayList<Candidate>();
 		int i = 0;

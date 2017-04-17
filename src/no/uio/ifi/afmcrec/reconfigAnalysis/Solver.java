@@ -293,6 +293,12 @@ public class Solver{
 		//int[] vectS = candidate.getCandidateVector();
 		int bestScore = candidate.score();
 		
+		Candidate trivial = new Candidate(FM, FM.generateTrivialCandidate());
+		if(trivial.score() == 0) {
+			System.out.println("Solution: trivial");
+			candS = trivial;
+			bestScore = trivial.score();
+		}
 		
 /*		// -- New
 		if(bestScore != probablyBestScore){
@@ -402,6 +408,11 @@ public class Solver{
 		
 		Candidate candidate = new Candidate(FM, candidateVector);
 		Candidate best = candidate;
+		
+		Candidate trivial = new Candidate(FM, FM.generateTrivialCandidate());
+		if(trivial.score() == 0) {
+			best = trivial;
+		}
 		
 		while(best.score() > 0 && k < kMax){
 			System.out.print("iteration: "+k+", t: "+t+", current: ");
@@ -626,7 +637,15 @@ public class Solver{
 		if (initPopSize % 2 != 0) popSize--;
 		
 		Candidate best = new Candidate(FM, FM.generateCandidate());
-		ArrayList<Candidate> generation = FM.generateCandidates(popSize);
+		
+		Candidate trivial = new Candidate(FM, FM.generateTrivialCandidate());
+		if(trivial.score() == 0) {
+			System.out.println("Solution: trivial");
+			best = trivial;
+		}
+		
+		ArrayList<Candidate> generation = FM.generateCandidates(popSize-1);
+		generation.add(trivial);
 		
 		double generalFitness = Double.MAX_VALUE;
 		double bestGeneralFitness = generalFitness;

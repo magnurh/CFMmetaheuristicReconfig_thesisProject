@@ -134,7 +134,9 @@ public class FMReconfigurer{
 
 			long startTime = System.nanoTime();
 			while(retries < hillClimbNumberOfExecutions && !foundGlobalOptimal){
-				int[] cand = fm.generateCandidate();					
+				System.out.println("HC "+retries);
+				int[] cand = fm.generateCandidate();	
+				if(retries == 0) cand = fm.generateTrivialCandidate();
 				int score = solver.hillClimbing(cand);
 				if (score == 0) {
 					foundGlobalOptimal = true;
