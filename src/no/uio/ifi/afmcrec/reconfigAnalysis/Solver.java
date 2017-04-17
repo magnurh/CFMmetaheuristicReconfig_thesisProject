@@ -353,7 +353,7 @@ public class Solver{
 					candidate = plateauVectors.get(randomIndex);
 					plateauCounter++;
 				}else{
-					plateauCounter = hillClimbAllowedPlateauIterations;
+					plateauCounter = hillClimbAllowedPlateauIterations+1;
 				}
 				//System.out.println(bestScore+" == "+FM.score(candidate)+" plat: "+plateauCounter);
 			}else{
