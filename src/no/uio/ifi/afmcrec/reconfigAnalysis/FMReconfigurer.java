@@ -150,13 +150,21 @@ public class FMReconfigurer{
 		}
 		if(useSimulatedAnnealing){
 			long startTime = System.nanoTime();
-			int[] cand = fm.generateCandidate();
-			int score = solver.simulatedAnnealing(cand, simAnnealMaxIterations, simAnnealInitialTemp);
+			int score = Integer.MAX_VALUE;
+			int iter = 0;
+			while(score > 0 && iter < simAnnealNumberOfExecutions){
+				System.out.println("SA "+iter);
+				int[] cand = fm.generateCandidate();
+				//int[] cand = fm.generateTrivialCandidate();
+				score = solver.simulatedAnnealing(cand, simAnnealMaxIterations, simAnnealInitialTemp);
+				iter++;
+			}
 			long endTime = System.nanoTime();
 			solver.setSimAnnealSolvingTime(endTime-startTime);
 			//System.err.println("Warning: Simulated annealing is not yet implemented");
 		}
 		if(useGeneticAlgorithm){
+			System.out.println("GA");
 			long startTime = System.nanoTime();
 			int score = solver.geneticAlgorithm(geneticAlgInitPopSize, geneticAlgCrossoverBreakPoints, geneticAlgMutationProbability);
 			long endTime = System.nanoTime();
