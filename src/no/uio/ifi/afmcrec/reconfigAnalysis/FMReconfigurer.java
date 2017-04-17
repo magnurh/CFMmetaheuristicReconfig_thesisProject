@@ -35,12 +35,13 @@ public class FMReconfigurer{
 	private int hillClimbPlateauIterations = 0;
 	
 	// Sim-annealing spec
-	private int simAnnealMaxIterations = 100;
-	private double simAnnealInitialTemp = 5.0;
+	private int simAnnealMaxIterations = 1000;
+	private double simAnnealInitialTemp = 2.0;
+	private int simAnnealNumberOfExecutions = 1;
 	
 	// Genetic Alg spec
-	private int geneticAlgInitPopSize = 12;
-	private int geneticAlgCrossoverBreakPoints = 2;
+	private int geneticAlgInitPopSize = 64;
+	private int geneticAlgCrossoverBreakPoints = 1;
 	private double geneticAlgMutationProbability = 0.02;		// Try setting as 1/candidatelength as default
 		
 	

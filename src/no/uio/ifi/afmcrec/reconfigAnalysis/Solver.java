@@ -316,12 +316,13 @@ public class Solver{
 				
 				// -- New
 				Candidate candX = candidate.getNeighbor(shuffledNeighborhoodIndexes.get(i));
-				if(candX != null) System.out.println(candX.getConfigAsString()+"\t"+candX.score());
+				//if(candX != null) System.out.println(candX.getConfigAsString()+"\t"+candX.score());
 				// --
 				
 				//int[] vectX = FM.getNeighbor(candidate.getCandidateVector(), shuffledNeighborhoodIndexes.get(i));
-				
+				//System.out.println("best: "+bestScore+" p: "+plateauCounter+" | "+i+" < "+shuffledNeighborhoodIndexes.size());		//
 				if(candX != null){
+					//System.out.println(candX.getConfigAsString()+" : "+candX.score());		//
 					//int scoreX = FM.score(vectX);
 					int scoreX = candX.score();
 					
@@ -404,7 +405,7 @@ public class Solver{
 		double reductionRate = t/maxIterations;
 		double k = 1.0;
 		
-		System.out.println("RedRate: "+reductionRate);
+		//System.out.println("RedRate: "+reductionRate);
 		
 		Candidate candidate = new Candidate(FM, candidateVector);
 		Candidate best = candidate;
@@ -415,8 +416,8 @@ public class Solver{
 		}
 		
 		while(best.score() > 0 && k < kMax){
-			System.out.print("iteration: "+k+", t: "+t+", current: ");
-			System.out.println(candidate.getConfigAsString()+"\t"+candidate.score()+"\n");
+			//System.out.print("iteration: "+k+", t: "+t+", current: ");
+			//System.out.println(candidate.getConfigAsString()+"\t"+candidate.score()+"\n");
 			ArrayList<Integer> shuffledNeighborhoodIndexes = FM.getShuffledNeighborhoodIndexes();
 			for (int i = 0; i < shuffledNeighborhoodIndexes.size(); i++){
 				Candidate neighbor = candidate.getNeighbor(shuffledNeighborhoodIndexes.get(i));
@@ -426,9 +427,9 @@ public class Solver{
 					//System.out.println(" = "+acceptanceProb); //
 					double threshold = ThreadLocalRandom.current().nextDouble();
 					//System.out.println(acceptanceProb+" > "+threshold+" : "+(acceptanceProb > threshold));
-					System.out.println(neighbor.getConfigAsString()+"\t"+neighbor.score()+"\t"+
+					/*System.out.println(neighbor.getConfigAsString()+"\t"+neighbor.score()+"\t"+
 							"exp("+(candidate.score()-neighbor.score())+"/"+t+") = "
-							+Math.exp((candidate.score() - neighbor.score())/t)+" ( > "+threshold+")?");
+							+Math.exp((candidate.score() - neighbor.score())/t)+" ( > "+threshold+")?");*/
 					if (acceptanceProb > threshold){
 						candidate = neighbor;
 						if (neighbor.score() < best.score()) {
@@ -545,6 +546,7 @@ public class Solver{
 		Candidate best = new Candidate(FM, FM.generateCandidate());
 		ArrayList<Candidate> generation = FM.generateCandidates(popSize);
 		
+		
 		double generalFitness = Double.MAX_VALUE;
 		double bestGeneralFitness = generalFitness;
 		
@@ -652,7 +654,7 @@ public class Solver{
 		
 		int termCount = 0;
 		
-		while(best.score() > 0 && popSize > 1 && termCount < 200){
+		while(best.score() > 0 && popSize > 1 && termCount < 40){
 			geneticAlgTotalIterations++;
 			//System.out.println(geneticAlgTotalIterations+" GenerationSize: "+generation.size());
 			
@@ -726,7 +728,7 @@ public class Solver{
 			geneticAlgBestScore = best.score();
 			geneticAlgBestVector = best.getCandidateVector();
 		}
-		if(best.score() == 0) printEvolution(best, "0");
+		//if(best.score() == 0) printEvolution(best, "0");
 		return best.score();
 	}
 	

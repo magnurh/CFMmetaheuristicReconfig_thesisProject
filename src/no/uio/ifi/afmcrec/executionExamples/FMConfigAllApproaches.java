@@ -12,13 +12,20 @@ public class FMConfigAllApproaches {
 		
 		//String input = "./out/data/0308_TestingRulestructure/170308-125122/dataset.txt";
 		String[] inputs = {
-				"./out/data/0314_TestingGenAlg/170326-141619/dataset.txt"};
+				"./out/data/0416_TestingDifferentDataSets/170415-222414/dataset.txt",
+				"./out/data/0416_TestingDifferentDataSets/170415-222433/dataset.txt",
+				"./out/data/0416_TestingDifferentDataSets/170415-222447/dataset.txt",
+				"./out/data/0416_TestingDifferentDataSets/170415-222527/dataset.txt",
+				"./out/data/0416_TestingDifferentDataSets/170415-222540/dataset.txt",
+				"./out/data/0416_TestingDifferentDataSets/170415-222605/dataset.txt",
+				"./out/data/0416_TestingDifferentDataSets/170415-222619/dataset.txt"
+				};
 	
 		for (int i = 0; i < inputs.length; i++){
 			System.out.println("----- "+i);
 			FMReconfigurer engine = new FMReconfigurer(inputs[i]);
-			//engine.applyHillClimbing();
-			//engine.applySimulatedAnnealing();
+			engine.applyHillClimbing();
+			engine.applySimulatedAnnealing();
 			engine.applyGeneticAlgorithm();
 			
 	
@@ -33,7 +40,9 @@ public class FMConfigAllApproaches {
 			engine.setGeneticAlgCrossoverBreakPoints(4);
 			engine.setGeneticAlgMutationProbability(0.08);
 			
-			engine.executeReconfig();
+			for(int j = 0; j < 1; j++){
+				engine.executeReconfig();
+			}
 		}
 		
 		
