@@ -199,7 +199,7 @@ public class FeatureModel{
 	
 	private void removeRulesAffectedBySelectedFeatures(){
 		String selectedIdsPattern = generateOrPatternFromSetOfIntegers(selectedFeatures);
-		System.out.println(selectedIdsPattern);
+		//System.out.println(selectedIdsPattern);
 		String obsoleteRulePattern = "\\(*.* impl \\(*(feature\\[_id\\d+\\] = [01] or )*feature\\[_id"+selectedIdsPattern+"\\] = 1( or feature\\[_id\\d+\\] = [01])*\\)*";
 					// feature[_id4] = 1 impl (feature[_id12] = 1 or feature[_id13] = 1)
 		for(ListIterator<String> constrIter = constraints.listIterator(); constrIter.hasNext();){
