@@ -174,12 +174,74 @@ public class FMReconfigurer{
 		}
 	}
 	
+	public void executeReconfig(int numberOfNonVoidModelsToRun){
+		progressPrintInterval = 0;
+		
+		int dataSetSize = 0;
+		int counter = 0;
+		int index = 0;
+		try{
+			BufferedReader file = new BufferedReader(new FileReader(input));
+			
+			boolean readModel = false;
+			String line = null;
+			String logPath = file.readLine();
+			String dir = file.readLine();
+			while((line = file.readLine()) != null && counter < numberOfNonVoidModelsToRun){
+				if (readModel){
+					String[] mData = line.split("\\s+");
+					String modelName = mData[0];
+					modelNames.add(modelName);
+					//System.out.println(modelName);
+					//String fmPath = dir+"/"+modelName;
+					int noFeatures = Integer.parseInt(mData[1]);
+					int noAttributes = Integer.parseInt(mData[2]);
+					int size = Integer.parseInt(mData[3]);
+					int contextSize = Integer.parseInt(mData[4]);
+					
+					if(!isVoidIndex[index]){
+						FMwrapper fm = new FMwrapper(dir, modelName, noFeatures, noAttributes, size, contextSize);
+						Solver solver = new Solver(fm);
+						executeMetaheuristics(fm, solver);
+						solver.setHyvarrecResult(hyvarrecResults.get(index));
+						solver.setVoid(isVoidIndex[index]);
+						results.put(modelName, solver);
+						printProgress(numberOfNonVoidModelsToRun, ++counter);
+					}else{
+						System.out.println(index+": "+hyvarrecResults.get(index));
+					}
+					index++;
+				}else if(line.equals("Feature_models")) {
+						readModel = true;
+						file.readLine();					
+				}else{
+					String[] l = line.split(": ");
+					if (l.length > 1){
+						int value = Integer.parseInt(l[1]);
+						inputParameters.put(l[0], value);
+						if (l[0].equals("Size_dataSet")){
+							dataSetSize = value;
+							if(isVoidIndex == null){
+								isVoidIndex = new boolean[dataSetSize];
+								readHyvarrecResults(input);
+							}
+							//for(int i = 0; i < isVoidIndex.length; i++) System.out.print(i+":"+isVoidIndex[i]+", ");
+						}
+					}
+				}
+			}
+			file.close();
+		}catch (IOException e){
+			System.err.println(e.getMessage());
+		}
+		writeResults(input, counter, 0);
+	}
+	
 	public void executeReconfig(){	
 		progressPrintInterval = 0;
 		
 		int dataSetSize = 0;
 		int counter = 0;
-		
 		try{
 			BufferedReader file = new BufferedReader(new FileReader(input));
 			
@@ -203,6 +265,8 @@ public class FMReconfigurer{
 					Solver solver = new Solver(fm);
 					
 					executeMetaheuristics(fm, solver);
+					solver.setHyvarrecResult(hyvarrecResults.get(counter));
+					solver.setVoid(isVoidIndex[counter]);
 					results.put(modelName, solver);
 					
 					printProgress(dataSetSize, ++counter);
@@ -217,7 +281,10 @@ public class FMReconfigurer{
 						inputParameters.put(l[0], value);
 						if (l[0].equals("Size_dataSet")){
 							dataSetSize = value;
-							isVoidIndex = new boolean[dataSetSize];
+							if(isVoidIndex == null){
+								isVoidIndex = new boolean[dataSetSize];
+								readHyvarrecResults(input);
+							}
 						}
 					}
 				}
@@ -226,38 +293,51 @@ public class FMReconfigurer{
 		}catch (IOException e){
 			System.err.println(e.getMessage());
 		}
-		
-		readHyvarrecResults(input);
-		writeResults(input, counter);
+		writeResults(input, counter, voidModels);
 	}
 	
-	private void writeResults(String input, int counter){
+	private void writeResults(String input, int counter, int voidModelsIncluded){
 		String timestamp = DatasetGenerator.timeStamp();
 		String output = "./out/analyses/"+timestamp+"_analysis.txt";
 		
-		counter -= voidModels;
+		counter -= voidModelsIncluded;
 		
 		int hcScoreSum = 0;
 		int hcIterSum = 0;
 		int hcSuccesses = 0;
 		int hcIterSumSuccesses = 0;
+		long hcTimeSuccesses = 0;
 		long hcTotalTime = 0;
 		
 		int saScoreSum = 0;
 		int saIterSum = 0;
 		int saSuccesses = 0;
 		int saIterSumSuccesses = 0;
+		long saTimeSuccesses = 0;
 		long saTotalTime = 0;
 		
 		int geScoreSum = 0;
 		int geIterSum = 0;
 		int geSuccesses = 0;
 		int geIterSumSuccesses = 0;
+		long geTimeSuccesses = 0;
 		long geTotalTime = 0;
+		
+		int hcSolvedAlone = 0;
+		int saSolvedAlone = 0;
+		int geSolvedAlone = 0;
+		int hcORsaSuccesses = 0;
+		long hcORsaTotalTime = 0;
+		int hcORgeSuccesses = 0;
+		long hcORgeTotalTime = 0;
+		int saORgeSuccesses = 0;
+		long saORgeTotalTime = 0;
+		int noSolverSucceeded = 0;
+		long timeSpentByAllSolvers = 0;
 		
 		int i = 0;
 		for (Solver m : results.values()){
-			if(i >= isVoidIndex.length || !isVoidIndex[i++]){
+			if(!m.isVoid()){
 				int hcScore = m.getHillClimbResultScore();
 				int hcIter = m.getHillClimbIterations();
 				long hcTime = m.getHillClimbSolvingTime();
@@ -267,6 +347,7 @@ public class FMReconfigurer{
 				if (hcScore == 0) {
 					hcSuccesses++;
 					hcIterSumSuccesses += hcIter;
+					hcTimeSuccesses += hcTime;
 				}
 				int saScore = m.getSimAnnealResultScore();
 				int saIter = m.getSimAnnealIterations();
@@ -277,6 +358,7 @@ public class FMReconfigurer{
 				if (saScore == 0) {
 					saSuccesses++;
 					saIterSumSuccesses += saIter;
+					saTimeSuccesses += saTime;
 				}
 				int geScore = m.getGeneticAlgResultScore();
 				int geIter = m.getGeneticAlgIterations();
@@ -287,15 +369,34 @@ public class FMReconfigurer{
 				if (geScore == 0) {
 					geSuccesses++;
 					geIterSumSuccesses += geIter;
+					geTimeSuccesses += geTime;
+				}
+				if(hcScore == 0 && saScore > 0 && geScore > 0) hcSolvedAlone++;
+				else if(hcScore > 0 && saScore == 0 && geScore > 0) saSolvedAlone++;
+				else if(hcScore > 0 && saScore > 0 && geScore == 0) geSolvedAlone++;
+				if(hcScore == 0 || saScore == 0) {
+					hcORsaSuccesses++;
+					if(hcScore == 0) hcORsaTotalTime += hcTime;
+					else hcORsaTotalTime += hcTime + saTime;
+				}
+				if(hcScore == 0 || geScore == 0) {
+					hcORgeSuccesses++;
+					if(hcScore == 0) hcORgeTotalTime += hcTime;
+					else hcORgeTotalTime += hcTime + geTime;
+				}
+				if(saScore == 0 || geScore == 0) {
+					saORgeSuccesses++;
+					if(saScore == 0) saORgeTotalTime += saTime;
+					else saORgeTotalTime += saTime + geTime;
+				}
+				if(hcScore > 0 && saScore > 0 && geScore > 0) noSolverSucceeded++;
+				else{
+					if(hcScore == 0) timeSpentByAllSolvers += hcTime;
+					else if(saScore == 0) timeSpentByAllSolvers += hcTime + saTime;
+					else timeSpentByAllSolvers += hcTime + saTime + geTime;
 				}
 			}
 		}
-		
-		System.out.println("Sum score: "+saScoreSum);
-		System.out.println("Sum iterations: "+saIterSum);
-		System.out.println("Successes: "+saSuccesses);
-		System.out.println("Sum iterations successes: "+saIterSumSuccesses);
-		System.out.println("Total count: "+counter);
 		
 		double hcSuccessRate = hcSuccesses*1.0/counter;
 		double hcAvgDist = hcScoreSum*1.0/counter;
@@ -303,6 +404,10 @@ public class FMReconfigurer{
 		double hcAvgIterSucc = hcIterSumSuccesses*1.0/hcSuccesses;
 		double hcAvgIterNonSucc = (hcIterSum - hcIterSumSuccesses) * 1.0 / (counter - hcSuccesses);
 		String hcAvgSolvingTime = convertNanoToTimeFormat(hcTotalTime / counter);
+		String hcAvgTimeSucc = "--"; 
+		if (hcSuccesses > 0) hcAvgTimeSucc = convertNanoToTimeFormat(hcTimeSuccesses / hcSuccesses);
+		String hcAvgTimeNonSucc = "--"; 
+		if (hcSuccesses < counter) hcAvgTimeNonSucc = convertNanoToTimeFormat((hcTotalTime - hcTimeSuccesses)/ (counter - hcSuccesses));
 		
 		double saSuccessRate = saSuccesses*1.0/counter;
 		double saAvgDist = saScoreSum*1.0/counter;
@@ -310,6 +415,12 @@ public class FMReconfigurer{
 		double saAvgIterSucc = saIterSumSuccesses*1.0/saSuccesses;
 		double saAvgIterNonSucc = (saIterSum - saIterSumSuccesses) * 1.0 / (counter - saSuccesses);
 		String saAvgSolvingTime = convertNanoToTimeFormat(saTotalTime / counter);
+		String saAvgTimeSucc = "--"; 
+		if (saSuccesses > 0) saAvgTimeSucc = convertNanoToTimeFormat(saTimeSuccesses / saSuccesses);
+		System.out.println(convertNanoToTimeFormat(saTotalTime)+" - "+convertNanoToTimeFormat(saTimeSuccesses)+" / "+(counter - saSuccesses));
+		System.out.println(convertNanoToTimeFormat(saTotalTime-saTimeSuccesses)+" / "+(counter - saSuccesses));
+		String saAvgTimeNonSucc = "--"; 
+		if (saSuccesses < counter) saAvgTimeNonSucc = convertNanoToTimeFormat((saTotalTime - saTimeSuccesses)/ (counter - saSuccesses));
 		
 		double geSuccessRate = geSuccesses*1.0/counter;
 		double geAvgDist = geScoreSum*1.0/counter;
@@ -317,12 +428,16 @@ public class FMReconfigurer{
 		double geAvgIterSucc = geIterSumSuccesses*1.0/geSuccesses;
 		double geAvgIterNonSucc = (geIterSum - geIterSumSuccesses) * 1.0 / (counter - geSuccesses);
 		String geAvgSolvingTime = convertNanoToTimeFormat(geTotalTime / counter);
+		String geAvgTimeSucc = "--";
+		if (geSuccesses > 0) geAvgTimeSucc = convertNanoToTimeFormat(geTimeSuccesses / geSuccesses);
+		String geAvgTimeNonSucc = "--"; 
+		if(geSuccesses < counter) geAvgTimeNonSucc = convertNanoToTimeFormat((geTotalTime - geTimeSuccesses)/ (counter - geSuccesses));
 		
 		try {
 			FileWriter an = new FileWriter(new File(output));
 			an.write(output+"\n");
 			an.write(input+"\n");
-			an.write("Models: "+counter+" (void: "+voidModels+")\n");
+			an.write("Models: "+counter+" (void: "+voidModelsIncluded+")\n");
 			for (String par : inputParameters.keySet()){
 				an.write(par+": "+inputParameters.get(par)+"\n");
 			}
@@ -336,6 +451,8 @@ public class FMReconfigurer{
 				an.write("-Success_cases: "+String.format("%.2f", hcAvgIterSucc)+"\n");
 				an.write("-Non-success_cases: "+String.format("%.2f", hcAvgIterNonSucc)+"\n");
 				an.write("Avg_SolvingTime: "+hcAvgSolvingTime+"\n");
+				an.write("-Success_cases: "+hcAvgTimeSucc+"\n");
+				an.write("-Non-success_cases: "+hcAvgTimeNonSucc+"\n");
 			}else{
 				an.write("--Not used--\n");
 			}
@@ -350,6 +467,8 @@ public class FMReconfigurer{
 				an.write("-Success_cases: "+String.format("%.2f", saAvgIterSucc)+"\n");
 				an.write("-Non-success_cases: "+String.format("%.2f", saAvgIterNonSucc)+"\n");
 				an.write("Avg_SolvingTime: "+saAvgSolvingTime+"\n");
+				an.write("-Success_cases: "+saAvgTimeSucc+"\n");
+				an.write("-Non-success_cases: "+saAvgTimeNonSucc+"\n");
 			}else{
 				an.write("--Not used--\n");
 			}
@@ -366,9 +485,39 @@ public class FMReconfigurer{
 				an.write("-Success_cases: "+String.format("%.2f", geAvgIterSucc)+"\n");
 				an.write("-Non-success_cases: "+String.format("%.2f", geAvgIterNonSucc)+"\n");
 				an.write("Avg_SolvingTime: "+geAvgSolvingTime+"\n");
+				an.write("-Success_cases: "+geAvgTimeSucc+"\n");
+				an.write("-Non-success_cases: "+geAvgTimeNonSucc+"\n");
 			}else{
 				an.write("--Not used--\n");
 			}
+			
+			an.write("\nGENERAL RESULTS\n");
+			if(useHillClimbing) an.write("HC solved "+hcSolvedAlone+" FMs alone\n");
+			if(useSimulatedAnnealing) an.write("SA solved "+saSolvedAlone+" FMs alone\n");
+			if(useGeneticAlgorithm) an.write("GE solved "+geSolvedAlone+" FMs alone\n");
+			if(useHillClimbing && useSimulatedAnnealing){
+				double hcORsaSuccessRate = hcORsaSuccesses*1.0/counter;
+				String hcORsaAvgTime = convertNanoToTimeFormat(hcORsaTotalTime / hcORsaSuccesses);
+				an.write("Comb HC & SA - SuccessRate: "+String.format("%.3f", hcORsaSuccessRate)+", Avg_timeSuccesses: "+hcORsaAvgTime+"\n");
+			}
+			if(useHillClimbing && useGeneticAlgorithm){
+				double hcORgeSuccessRate = hcORgeSuccesses*1.0/counter;
+				String hcORgeAvgTime = convertNanoToTimeFormat(hcORgeTotalTime / hcORgeSuccesses);
+				an.write("Comb HC & GE - SuccessRate: "+String.format("%.3f", hcORgeSuccessRate)+", Avg_timeSuccesses: "+hcORgeAvgTime+"\n");
+			}
+			if(useSimulatedAnnealing && useGeneticAlgorithm){
+				double saORgeSuccessRate = saORgeSuccesses*1.0/counter;
+				String saORgeAvgTime = convertNanoToTimeFormat(saORgeTotalTime / saORgeSuccesses);
+				an.write("Comb SA & GE - SuccessRate: "+String.format("%.3f", saORgeSuccessRate)+", Avg_timeSuccesses: "+saORgeAvgTime+"\n");
+			}
+			System.out.println(noSolverSucceeded);
+			System.out.println(counter);
+			System.out.println(timeSpentByAllSolvers);
+			double allSolversSuccessRate = (counter - noSolverSucceeded)*1.0 / counter;
+			String allSolversAvgTime = convertNanoToTimeFormat(timeSpentByAllSolvers / (counter - noSolverSucceeded));
+			an.write("All combined\n");
+			an.write("-successRate: "+String.format("%.3f", allSolversSuccessRate)+" (FMs not solved: "+noSolverSucceeded+")\n");
+			an.write("-avg_timeSuccesses: "+allSolversAvgTime+"\n");
 			
 			an.write("\nMODEL\t\tAPPROACH\tTIME\tITERATIONS\tSCORE\tRESULT");
 			int index = 0;
@@ -388,8 +537,8 @@ public class FMReconfigurer{
 						String result = resultAsString(m.getGeneticAlgResultVector(), sizeAFM);
 						String time = convertNanoToTimeFormat(m.getGeneticAlgSolvingTime());
 						an.write("\n"+modelname+"\tGE\t"+time+"\t"+m.getGeneticAlgIterations()+"\t"+m.getGeneticAlgResultScore()+"\t"+result);
-					}else if (index < hyvarrecResults.size()){
-						int[] hyvarrecRes = transformHyvarrecResult(hyvarrecResults.get(index), m.FM.getCandidateLength());
+					}else if (approaches[j].equals("HVR")){
+						int[] hyvarrecRes = transformHyvarrecResult(m.getHyvarrecResult(), m.FM.getCandidateLength());
 						String result = resultAsString(hyvarrecRes, sizeAFM);
 						an.write("\n"+modelname+"\t"+approaches[j]+"\t\t\t\t\t"+result);
 					}
@@ -649,6 +798,7 @@ public class FMReconfigurer{
 							if (i < isVoidIndex.length) isVoidIndex[i] = true;
 							voidModels++;
 						}
+						i++;
 						hyvarrecResults.add(line);
 					}
 					file.close();

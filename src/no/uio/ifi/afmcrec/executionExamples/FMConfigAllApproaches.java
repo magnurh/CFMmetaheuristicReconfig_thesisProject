@@ -12,13 +12,8 @@ public class FMConfigAllApproaches {
 		
 		//String input = "./out/data/0308_TestingRulestructure/170308-125122/dataset.txt";
 		String[] inputs = {
-				"./out/data/0416_TestingDifferentDataSets/170415-222414/dataset.txt",
-				"./out/data/0416_TestingDifferentDataSets/170415-222433/dataset.txt",
-				"./out/data/0416_TestingDifferentDataSets/170415-222447/dataset.txt",
-				"./out/data/0416_TestingDifferentDataSets/170415-222527/dataset.txt",
-				"./out/data/0416_TestingDifferentDataSets/170415-222540/dataset.txt",
-				"./out/data/0416_TestingDifferentDataSets/170415-222605/dataset.txt",
-				"./out/data/0416_TestingDifferentDataSets/170415-222619/dataset.txt"
+				"./out/data/0420_TestSet03/170420-092601/dataset.txt",
+				"./out/data/0420_TestSet03/170420-092606/dataset.txt"
 				};
 	
 		for (int i = 0; i < inputs.length; i++){
@@ -29,19 +24,19 @@ public class FMConfigAllApproaches {
 			engine.applyGeneticAlgorithm();
 			
 	
-			engine.setHillClimbMaxPlateauIterations(10);
-			engine.setHillClimbNumberOfExecutions(6);
+			engine.setHillClimbMaxPlateauIterations(20);
+			engine.setHillClimbNumberOfExecutions(20);
 			
 			engine.setSimAnnealMaxIterations(9999*10);
 			engine.setSimAnnealInitialTemperature(2.0);
-			engine.setSimAnnealNumberOfExecutions(6);
+			engine.setSimAnnealNumberOfExecutions(1);
 			
-			engine.setGeneticAlgInitialPopulationSize(256);
+			engine.setGeneticAlgInitialPopulationSize(128);
 			engine.setGeneticAlgCrossoverBreakPoints(4);
 			engine.setGeneticAlgMutationProbability(0.08);
 			
 			for(int j = 0; j < 1; j++){
-				engine.executeReconfig();
+				engine.executeReconfig(500);
 			}
 		}
 		
