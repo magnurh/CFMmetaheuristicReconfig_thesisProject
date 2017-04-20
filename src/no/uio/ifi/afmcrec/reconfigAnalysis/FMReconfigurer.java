@@ -135,7 +135,7 @@ public class FMReconfigurer{
 
 			long startTime = System.nanoTime();
 			while(retries < hillClimbNumberOfExecutions && !foundGlobalOptimal){
-				System.out.println("HC "+retries);
+				//System.out.println("HC "+retries);
 				int[] cand = fm.generateCandidate();	
 				if(retries == 0) cand = fm.generateTrivialCandidate();
 				int score = solver.hillClimbing(cand);
@@ -154,7 +154,7 @@ public class FMReconfigurer{
 			int score = Integer.MAX_VALUE;
 			int iter = 0;
 			while(score > 0 && iter < simAnnealNumberOfExecutions){
-				System.out.println("SA "+iter);
+				//System.out.println("SA "+iter);
 				int[] cand = fm.generateCandidate();
 				//int[] cand = fm.generateTrivialCandidate();
 				score = solver.simulatedAnnealing(cand, simAnnealMaxIterations, simAnnealInitialTemp);
@@ -165,7 +165,7 @@ public class FMReconfigurer{
 			//System.err.println("Warning: Simulated annealing is not yet implemented");
 		}
 		if(useGeneticAlgorithm){
-			System.out.println("GA");
+			//System.out.println("GA");
 			long startTime = System.nanoTime();
 			int score = solver.geneticAlgorithm(geneticAlgInitPopSize, geneticAlgCrossoverBreakPoints, geneticAlgMutationProbability);
 			long endTime = System.nanoTime();
