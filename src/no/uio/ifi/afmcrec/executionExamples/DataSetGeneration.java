@@ -10,22 +10,22 @@ import no.uio.ifi.afmcrec.datasetGeneration.DatasetGenerator;
 public class DataSetGeneration{
 	public static void main(String[] args){
 		
-		String dataSetName = "0416_TestingDifferentDataSets";
+		String dataSetName = "0420_TestSet04";
 		
-		int sizeOfDataSet = 400;
+		int sizeOfDataSet = 600;
 		
 		// AFM Parameters
-		int numberOfFeatures = 60;
-		int percentageOfCrossTreeConstraints = 10;
-		int mandatoryProbability = 30;
-		int optionalProbability = 20;
-		int alternativeProbability = 30;
-		int orProbability = 20;
+		int numberOfFeatures = 90;
+		int percentageOfCrossTreeConstraints = 35;
+		int mandatoryProbability = 10;
+		int optionalProbability = 10;
+		int alternativeProbability = 40;
+		int orProbability = 40;
 		int attributeRangeFrom = 0;
 		int attributeRangeTo = 100;
-		int contextMaxSize = 16;
+		int contextMaxSize = 12;
 		int contextMaxValue = 10;
-		int maxNumberOfVFs = 32;
+		int maxNumberOfVFs = 15;
 		
 		DatasetGenerator generator = new DatasetGenerator(dataSetName);
 		generator.setMainParameters(sizeOfDataSet, numberOfFeatures, percentageOfCrossTreeConstraints, maxNumberOfVFs);
