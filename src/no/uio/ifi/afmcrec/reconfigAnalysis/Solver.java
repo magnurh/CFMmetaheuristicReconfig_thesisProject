@@ -30,6 +30,9 @@ public class Solver{
 	private int geneticAlgBestScore = Integer.MAX_VALUE;
 	private long geneticAlgSolvingTime;
 	
+	private String hyvarrecResult = "";
+	private boolean voidModel = false;
+	
 	Solver(FMwrapper FM){
 		this.FM = FM;
 		nullifyLogValues();
@@ -1065,6 +1068,22 @@ public class Solver{
 
 	public void setGeneticAlgSolvingTime(long geneticAlgSolvingTime) {
 		this.geneticAlgSolvingTime = geneticAlgSolvingTime;
+	}
+
+	public String getHyvarrecResult() {
+		return hyvarrecResult;
+	}
+
+	public void setHyvarrecResult(String hyvarrecResult) {
+		this.hyvarrecResult = hyvarrecResult;
+	}
+
+	public boolean isVoid() {
+		return voidModel;
+	}
+
+	public void setVoid(boolean voidModel) {
+		this.voidModel = voidModel;
 	}
 	
 }
