@@ -6,6 +6,7 @@ package no.uio.ifi.afmcrec.datasetGeneration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -235,6 +236,64 @@ public class FMextender implements VarModelExtender{
 		return false;
 	}
 	
+	private int findMandatoryPredecessorOf(int f){
+		int p = f;
+		for(int key : mandRelations.keySet()){
+			if(mandRelations.get(key).contains(p)){
+				p = key;
+				break;
+			}
+		}
+		//System.out.println(f+" <- "+p);
+		if(p == f) return f;
+		else return findMandatoryPredecessorOf(p);
+	}
+	
+	private boolean sharesAltGroup(int a, int b){;
+		for(int key : altRelations.keySet()){
+			ArrayList<int[]> altGroups = altRelations.get(key);
+			for(int[] group: altGroups){
+				boolean aFound = false;
+				boolean bFound = false;
+				for(int j = 0; j < group.length; j++){
+					if(isPredecessorOf(group[j], a)) aFound = true;
+					else if(isPredecessorOf(group[j], b)) bFound = true;
+				}
+				if(aFound && bFound) {
+					System.err.println("Features "+a+" and "+b+" share alt-group");
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean isPredecessorOf(int a, int b){
+		//System.out.println("IsPredecessorOf: "+a+", "+b);
+		if(a == b) return true;
+		boolean result = false;
+		ArrayList<Integer> children = new ArrayList<Integer>();
+		if(mandRelations.containsKey(a)) children.addAll(mandRelations.get(a));
+		if(optRelations.containsKey(a)) children.addAll(optRelations.get(a));
+		if(altRelations.containsKey(a)){ 
+			ArrayList<int[]> altGroups = altRelations.get(a);
+			for(int[] g : altGroups){
+				for(int m: g) children.add(m);
+			}
+		}
+		if(orRelations.containsKey(a)){
+			ArrayList<int[]> orGroups = orRelations.get(a);
+			for(int[] g : orGroups){
+				for(int m: g) children.add(m);
+			}
+		}
+		for(Integer c : children){
+			result = result || isPredecessorOf(c, b);
+			if(result) return result;
+		}
+		return result;
+	}
+	
 	private void addCTCs(AFMWithContext afmc){
 		for (int i = 0; i < ctcCounter; i++){
 			String ctcString = crossTreeConstraints.get(i);
@@ -243,7 +302,14 @@ public class FMextender implements VarModelExtender{
 			int lhs = extractFirstIntFromString(ctcArr[0]);
 			int rhs = extractFirstIntFromString(ctcArr[2]);
 			
-			afmc.setCrossTreeConstraint(lhs, ctcArr[1], rhs);
+			int lhsp = findMandatoryPredecessorOf(lhs);
+			int rhsp = findMandatoryPredecessorOf(rhs);
+			//System.out.println(ctcArr[1]);
+			if(!isPredecessorOf(lhsp, rhsp) && !sharesAltGroup(lhsp, rhsp)){
+				afmc.setCrossTreeConstraint(lhs, ctcArr[1], rhs);
+			}else{
+				System.err.println("CTC removed due to shared sub-tree: "+lhs+" and "+rhs);
+			}
 		}
 	}
 	
