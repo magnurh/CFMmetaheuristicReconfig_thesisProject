@@ -405,7 +405,9 @@ public class Solver{
 */		
 		double t = initialTemperature;
 		int kMax = maxIterations; // max number of iterations
-		double reductionRate = t/maxIterations;
+		//double reductionRate = t/maxIterations;
+		double r = 1-(t/maxIterations);
+		//double r = Math.pow(1-(t/maxIterations), 3);
 		double k = 1.0;
 		
 		//System.out.println("RedRate: "+reductionRate);
@@ -421,9 +423,12 @@ public class Solver{
 		while(best.score() > 0 && k < kMax){
 			//System.out.print("iteration: "+k+", t: "+t+", current: ");
 			//System.out.println(candidate.getConfigAsString()+"\t"+candidate.score()+"\n");
+			Candidate neighbor = null;
+			Candidate locallyBest = null;
+			boolean neighborAccepted = false;
 			ArrayList<Integer> shuffledNeighborhoodIndexes = FM.getShuffledNeighborhoodIndexes();
 			for (int i = 0; i < shuffledNeighborhoodIndexes.size(); i++){
-				Candidate neighbor = candidate.getNeighbor(shuffledNeighborhoodIndexes.get(i));
+				neighbor = candidate.getNeighbor(shuffledNeighborhoodIndexes.get(i));
 				if(neighbor != null){
 					//System.out.println("P("+candidate.score()+", "+neighbor.score()+", "+t+")");	//
 					double acceptanceProb = acceptanceProbability(candidate.score(), neighbor.score(), t);
@@ -435,15 +440,20 @@ public class Solver{
 							+Math.exp((candidate.score() - neighbor.score())/t)+" ( > "+threshold+")?");*/
 					if (acceptanceProb > threshold){
 						candidate = neighbor;
+						neighborAccepted = true;
 						if (neighbor.score() < best.score()) {
 							best = neighbor;
 						}
 						break;
+					}else if(locallyBest == null || neighbor.score() < locallyBest.score()){
+						locallyBest = neighbor;
 					}
 				}
 			}
+			if(!neighborAccepted) candidate = locallyBest;
 			k++;
-			t -= reductionRate;  
+			//t -= reductionRate;
+			t *= r;
 		}
 		simAnnealTotalIterations += k;
 		if(best.score() < simAnnealBestScore){
