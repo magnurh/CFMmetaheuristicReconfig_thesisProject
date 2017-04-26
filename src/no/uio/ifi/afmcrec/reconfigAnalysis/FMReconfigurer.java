@@ -156,7 +156,7 @@ public class FMReconfigurer{
 			while(score > 0 && iter < simAnnealNumberOfExecutions){
 				//System.out.println("SA "+iter);
 				int[] cand = fm.generateCandidate();
-				//int[] cand = fm.generateTrivialCandidate();
+				if(simAnnealNumberOfExecutions > 1 && iter == 0) cand = fm.generateTrivialCandidate();
 				score = solver.simulatedAnnealing(cand, simAnnealMaxIterations, simAnnealInitialTemp);
 				iter++;
 			}
@@ -203,7 +203,7 @@ public class FMReconfigurer{
 						FMwrapper fm = new FMwrapper(dir, modelName, noFeatures, noAttributes, size, contextSize);
 						Solver solver = new Solver(fm);
 						executeMetaheuristics(fm, solver);
-						solver.setHyvarrecResult(hyvarrecResults.get(index));
+						if(hyvarrecResults != null && index < hyvarrecResults.size()) solver.setHyvarrecResult(hyvarrecResults.get(index));
 						solver.setVoid(isVoidIndex[index]);
 						results.put(modelName, solver);
 						printProgress(numberOfNonVoidModelsToRun, ++counter);
@@ -514,7 +514,8 @@ public class FMReconfigurer{
 			System.out.println(counter);
 			System.out.println(timeSpentByAllSolvers);
 			double allSolversSuccessRate = (counter - noSolverSucceeded)*1.0 / counter;
-			String allSolversAvgTime = convertNanoToTimeFormat(timeSpentByAllSolvers / (counter - noSolverSucceeded));
+			String allSolversAvgTime = "";
+			if(noSolverSucceeded < counter) allSolversAvgTime = convertNanoToTimeFormat(timeSpentByAllSolvers / (counter - noSolverSucceeded));
 			an.write("All combined\n");
 			an.write("-successRate: "+String.format("%.3f", allSolversSuccessRate)+" (FMs not solved: "+noSolverSucceeded+")\n");
 			an.write("-avg_timeSuccesses: "+allSolversAvgTime+"\n");
