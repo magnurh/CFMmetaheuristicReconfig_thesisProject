@@ -71,8 +71,13 @@ public class DatasetGenerator {
 	private int maxNumberOfVFs = 12;
 	
 	
-	public DatasetGenerator(String dataSetName){
+	public DatasetGenerator(String dataSetName, int sizeDataSet, int numberOfFeatures, int percentageCTC, int maxNumberOfVFs){
 		this.generalNameOfDataset = dataSetName;
+		this.sizeDataSet = sizeDataSet;
+		this.numberOfFeatures = numberOfFeatures;
+		this.percentageCTC = percentageCTC;
+		double percentageVF = maxNumberOfVFs*0.01;
+		this.maxNumberOfVFs = (int) (numberOfFeatures*percentageVF);
 	}
 	
 	/**
@@ -127,7 +132,18 @@ public class DatasetGenerator {
 	 * @param maxSize
 	 * @param maxValue
 	 */
-	public void setContextSizeAndRange(int maxSize, int maxValue){
+	public void setRelativeContextSizeAndRange(int maxSizePercentageOfModelSize, int maxValue){
+		double percentageContextSize = maxSizePercentageOfModelSize*0.01;
+		contextMaxSize = (int) (numberOfFeatures * percentageContextSize);
+		contextMaxValue = maxValue;
+	}
+	
+	/**
+	 * Default values are 10 and 10
+	 * @param maxSize
+	 * @param maxValue
+	 */
+	public void setFixedContextSizeAndRange(int maxSize, int maxValue){
 		contextMaxSize = maxSize;
 		contextMaxValue = maxValue;
 	}
