@@ -647,7 +647,7 @@ public class Solver{
 	}
 
 	/* Preferred version */
-	public int geneticAlgorithm(int initPopSize, int crossOverBreakPoints, double mutationProbability){
+	public int geneticAlgorithm(int initPopSize, int crossOverBreakPoints, double mutationProbability, double randomSelectionRate){
 		int popSize = initPopSize;
 		if (initPopSize % 2 != 0) popSize--;
 		
@@ -685,7 +685,7 @@ public class Solver{
 			}
 			//System.out.println();
 			if(!globalOptFound){
-				generation = naturalSelection(generation, popSize, 0.08);
+				generation = naturalSelection(generation, popSize, randomSelectionRate);
 				//System.out.println(geneticAlgTotalIterations+" size: "+generation.size());
 				double newGeneralFitness = calculateGeneralFitness(generation);
 				if(newGeneralFitness >= bestGeneralFitness) {

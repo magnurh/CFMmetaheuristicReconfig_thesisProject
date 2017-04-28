@@ -43,6 +43,7 @@ public class FMReconfigurer{
 	private int geneticAlgInitPopSize = 64;
 	private int geneticAlgCrossoverBreakPoints = 1;
 	private double geneticAlgMutationProbability = 0.02;		// Try setting as 1/candidatelength as default
+	private double geneticAlgRandomSelection = 0.08;
 		
 	
 //	long startTime = 0;
@@ -167,7 +168,7 @@ public class FMReconfigurer{
 		if(useGeneticAlgorithm){
 			//System.out.println("GA");
 			long startTime = System.nanoTime();
-			int score = solver.geneticAlgorithm(geneticAlgInitPopSize, geneticAlgCrossoverBreakPoints, geneticAlgMutationProbability);
+			int score = solver.geneticAlgorithm(geneticAlgInitPopSize, geneticAlgCrossoverBreakPoints, geneticAlgMutationProbability, geneticAlgRandomSelection);
 			long endTime = System.nanoTime();
 			solver.setGeneticAlgSolvingTime(endTime-startTime);
 			//System.err.println("Warning: Genetic algorithm is not yet implemented");
@@ -960,5 +961,9 @@ public class FMReconfigurer{
 	
 	public void setGeneticAlgMutationProbability(double mutationProb){
 		geneticAlgMutationProbability = mutationProb;
+	}
+	
+	public void setGeneticAlgRandomSelectionProbability(double randomSelectionRate){
+		geneticAlgRandomSelection = randomSelectionRate;
 	}
 }
