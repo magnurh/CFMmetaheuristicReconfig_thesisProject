@@ -329,9 +329,9 @@ public class FMReconfigurer{
 		int geSolvedAlone = 0;
 		int hcORsaSuccesses = 0;
 		long hcORsaTotalTime = 0;
-		int hcORgeSuccesses = 0;
+		int hcORgaSuccesses = 0;
 		long hcORgeTotalTime = 0;
-		int saORgeSuccesses = 0;
+		int saORgaSuccesses = 0;
 		long saORgeTotalTime = 0;
 		int noSolverSucceeded = 0;
 		long timeSpentByAllSolvers = 0;
@@ -381,12 +381,12 @@ public class FMReconfigurer{
 					else hcORsaTotalTime += hcTime + saTime;
 				}
 				if(hcScore == 0 || geScore == 0) {
-					hcORgeSuccesses++;
+					hcORgaSuccesses++;
 					if(hcScore == 0) hcORgeTotalTime += hcTime;
 					else hcORgeTotalTime += hcTime + geTime;
 				}
 				if(saScore == 0 || geScore == 0) {
-					saORgeSuccesses++;
+					saORgaSuccesses++;
 					if(saScore == 0) saORgeTotalTime += saTime;
 					else saORgeTotalTime += saTime + geTime;
 				}
@@ -405,10 +405,18 @@ public class FMReconfigurer{
 		double hcAvgIterSucc = hcIterSumSuccesses*1.0/hcSuccesses;
 		double hcAvgIterNonSucc = (hcIterSum - hcIterSumSuccesses) * 1.0 / (counter - hcSuccesses);
 		String hcAvgSolvingTime = convertNanoToTimeFormat(hcTotalTime / counter);
-		String hcAvgTimeSucc = "--"; 
-		if (hcSuccesses > 0) hcAvgTimeSucc = convertNanoToTimeFormat(hcTimeSuccesses / hcSuccesses);
-		String hcAvgTimeNonSucc = "--"; 
-		if (hcSuccesses < counter) hcAvgTimeNonSucc = convertNanoToTimeFormat((hcTotalTime - hcTimeSuccesses)/ (counter - hcSuccesses));
+		long hcAvgTimeSucc = 0;
+		String hcAvgTimeSuccStr = "--";
+		if (hcSuccesses > 0) {
+			hcAvgTimeSucc = hcTimeSuccesses / hcSuccesses;
+			hcAvgTimeSuccStr = convertNanoToTimeFormat(hcAvgTimeSucc);
+		}
+		long hcAvgTimeNonSucc = 0;
+		String hcAvgTimeNonSuccStr = "--"; 
+		if(hcSuccesses < counter) {
+			hcAvgTimeNonSucc = (hcTotalTime - hcTimeSuccesses)/ (counter - hcSuccesses);
+			hcAvgTimeNonSuccStr = convertNanoToTimeFormat(hcAvgTimeNonSucc);
+		}
 		
 		double saSuccessRate = saSuccesses*1.0/counter;
 		double saAvgDist = saScoreSum*1.0/counter;
@@ -416,23 +424,36 @@ public class FMReconfigurer{
 		double saAvgIterSucc = saIterSumSuccesses*1.0/saSuccesses;
 		double saAvgIterNonSucc = (saIterSum - saIterSumSuccesses) * 1.0 / (counter - saSuccesses);
 		String saAvgSolvingTime = convertNanoToTimeFormat(saTotalTime / counter);
-		String saAvgTimeSucc = "--"; 
-		if (saSuccesses > 0) saAvgTimeSucc = convertNanoToTimeFormat(saTimeSuccesses / saSuccesses);
-		System.out.println(convertNanoToTimeFormat(saTotalTime)+" - "+convertNanoToTimeFormat(saTimeSuccesses)+" / "+(counter - saSuccesses));
-		System.out.println(convertNanoToTimeFormat(saTotalTime-saTimeSuccesses)+" / "+(counter - saSuccesses));
-		String saAvgTimeNonSucc = "--"; 
-		if (saSuccesses < counter) saAvgTimeNonSucc = convertNanoToTimeFormat((saTotalTime - saTimeSuccesses)/ (counter - saSuccesses));
-		
+		long saAvgTimeSucc = 0;
+		String saAvgTimeSuccStr = "--";
+		if (saSuccesses > 0) {
+			saAvgTimeSucc = saTimeSuccesses / saSuccesses;
+			saAvgTimeSuccStr = convertNanoToTimeFormat(saAvgTimeSucc);
+		}
+		long saAvgTimeNonSucc = 0;
+		String saAvgTimeNonSuccStr = "--"; 
+		if(saSuccesses < counter) {
+			saAvgTimeNonSucc = (saTotalTime - saTimeSuccesses)/ (counter - saSuccesses);
+			saAvgTimeNonSuccStr = convertNanoToTimeFormat(saAvgTimeNonSucc);
+		}
 		double geSuccessRate = geSuccesses*1.0/counter;
 		double geAvgDist = geScoreSum*1.0/counter;
 		double geAvgIter = geIterSum*1.0/counter;
 		double geAvgIterSucc = geIterSumSuccesses*1.0/geSuccesses;
 		double geAvgIterNonSucc = (geIterSum - geIterSumSuccesses) * 1.0 / (counter - geSuccesses);
 		String geAvgSolvingTime = convertNanoToTimeFormat(geTotalTime / counter);
-		String geAvgTimeSucc = "--";
-		if (geSuccesses > 0) geAvgTimeSucc = convertNanoToTimeFormat(geTimeSuccesses / geSuccesses);
-		String geAvgTimeNonSucc = "--"; 
-		if(geSuccesses < counter) geAvgTimeNonSucc = convertNanoToTimeFormat((geTotalTime - geTimeSuccesses)/ (counter - geSuccesses));
+		long gaAvgTimeSucc = 0;
+		String gaAvgTimeSuccStr = "--";
+		if (geSuccesses > 0) {
+			gaAvgTimeSucc = geTimeSuccesses / geSuccesses;
+			gaAvgTimeSuccStr = convertNanoToTimeFormat(gaAvgTimeSucc);
+		}
+		long gaAvgTimeNonSucc = 0;
+		String gaAvgTimeNonSuccStr = "--"; 
+		if(geSuccesses < counter) {
+			gaAvgTimeNonSucc = (geTotalTime - geTimeSuccesses)/ (counter - geSuccesses);
+			gaAvgTimeNonSuccStr = convertNanoToTimeFormat(gaAvgTimeNonSucc);
+		}
 		
 		try {
 			FileWriter an = new FileWriter(new File(output));
@@ -452,8 +473,8 @@ public class FMReconfigurer{
 				an.write("-Success_cases: "+String.format("%.2f", hcAvgIterSucc)+"\n");
 				an.write("-Non-success_cases: "+String.format("%.2f", hcAvgIterNonSucc)+"\n");
 				an.write("Avg_SolvingTime: "+hcAvgSolvingTime+"\n");
-				an.write("-Success_cases: "+hcAvgTimeSucc+"\n");
-				an.write("-Non-success_cases: "+hcAvgTimeNonSucc+"\n");
+				an.write("-Success_cases: "+hcAvgTimeSuccStr+"\n");
+				an.write("-Non-success_cases: "+hcAvgTimeNonSuccStr+"\n");
 			}else{
 				an.write("--Not used--\n");
 			}
@@ -468,8 +489,8 @@ public class FMReconfigurer{
 				an.write("-Success_cases: "+String.format("%.2f", saAvgIterSucc)+"\n");
 				an.write("-Non-success_cases: "+String.format("%.2f", saAvgIterNonSucc)+"\n");
 				an.write("Avg_SolvingTime: "+saAvgSolvingTime+"\n");
-				an.write("-Success_cases: "+saAvgTimeSucc+"\n");
-				an.write("-Non-success_cases: "+saAvgTimeNonSucc+"\n");
+				an.write("-Success_cases: "+saAvgTimeSuccStr+"\n");
+				an.write("-Non-success_cases: "+saAvgTimeNonSuccStr+"\n");
 			}else{
 				an.write("--Not used--\n");
 			}
@@ -486,8 +507,8 @@ public class FMReconfigurer{
 				an.write("-Success_cases: "+String.format("%.2f", geAvgIterSucc)+"\n");
 				an.write("-Non-success_cases: "+String.format("%.2f", geAvgIterNonSucc)+"\n");
 				an.write("Avg_SolvingTime: "+geAvgSolvingTime+"\n");
-				an.write("-Success_cases: "+geAvgTimeSucc+"\n");
-				an.write("-Non-success_cases: "+geAvgTimeNonSucc+"\n");
+				an.write("-Success_cases: "+gaAvgTimeSuccStr+"\n");
+				an.write("-Non-success_cases: "+gaAvgTimeNonSuccStr+"\n");
 			}else{
 				an.write("--Not used--\n");
 			}
@@ -496,30 +517,66 @@ public class FMReconfigurer{
 			if(useHillClimbing) an.write("HC solved "+hcSolvedAlone+" FMs alone\n");
 			if(useSimulatedAnnealing) an.write("SA solved "+saSolvedAlone+" FMs alone\n");
 			if(useGeneticAlgorithm) an.write("GE solved "+geSolvedAlone+" FMs alone\n");
+			double hcORsaSuccessRate = 0.0;
+			long hcORsaAvgTime = -1;
+			double hcORgaSuccessRate = 0.0;
+			long hcORgaAvgTime = -1;
+			double saORgaSuccessRate = 0.0;
+			long saORgaAvgTime = -1;
 			if(useHillClimbing && useSimulatedAnnealing){
-				double hcORsaSuccessRate = hcORsaSuccesses*1.0/counter;
-				String hcORsaAvgTime = convertNanoToTimeFormat(hcORsaTotalTime / hcORsaSuccesses);
-				an.write("Comb HC & SA - SuccessRate: "+String.format("%.3f", hcORsaSuccessRate)+", Avg_timeSuccesses: "+hcORsaAvgTime+"\n");
+				hcORsaSuccessRate = hcORsaSuccesses*1.0/counter;
+				hcORsaAvgTime = hcORsaTotalTime / hcORsaSuccesses;
+				String hcORsaAvgTimeStr = convertNanoToTimeFormat(hcORsaAvgTime);
+				an.write("Comb HC & SA - SuccessRate: "+String.format("%.3f", hcORsaSuccessRate)+", Avg_timeSuccesses: "+hcORsaAvgTimeStr+"\n");
 			}
 			if(useHillClimbing && useGeneticAlgorithm){
-				double hcORgeSuccessRate = hcORgeSuccesses*1.0/counter;
-				String hcORgeAvgTime = convertNanoToTimeFormat(hcORgeTotalTime / hcORgeSuccesses);
-				an.write("Comb HC & GE - SuccessRate: "+String.format("%.3f", hcORgeSuccessRate)+", Avg_timeSuccesses: "+hcORgeAvgTime+"\n");
+				hcORgaSuccessRate = hcORgaSuccesses*1.0/counter;
+				hcORgaAvgTime = hcORgeTotalTime / hcORgaSuccesses;
+				String hcORgaAvgTimeStr = convertNanoToTimeFormat(hcORgaAvgTime);
+				an.write("Comb HC & GE - SuccessRate: "+String.format("%.3f", hcORgaSuccessRate)+", Avg_timeSuccesses: "+hcORgaAvgTimeStr+"\n");
 			}
 			if(useSimulatedAnnealing && useGeneticAlgorithm){
-				double saORgeSuccessRate = saORgeSuccesses*1.0/counter;
-				String saORgeAvgTime = convertNanoToTimeFormat(saORgeTotalTime / saORgeSuccesses);
-				an.write("Comb SA & GE - SuccessRate: "+String.format("%.3f", saORgeSuccessRate)+", Avg_timeSuccesses: "+saORgeAvgTime+"\n");
+				saORgaSuccessRate = saORgaSuccesses*1.0/counter;
+				saORgaAvgTime = saORgeTotalTime / saORgaSuccesses;
+				String saORgaAvgTimeStr = convertNanoToTimeFormat(saORgaAvgTime);
+				an.write("Comb SA & GE - SuccessRate: "+String.format("%.3f", saORgaSuccessRate)+", Avg_timeSuccesses: "+saORgaAvgTimeStr+"\n");
 			}
 			System.out.println(noSolverSucceeded);
 			System.out.println(counter);
 			System.out.println(timeSpentByAllSolvers);
 			double allSolversSuccessRate = (counter - noSolverSucceeded)*1.0 / counter;
-			String allSolversAvgTime = "";
-			if(noSolverSucceeded < counter) allSolversAvgTime = convertNanoToTimeFormat(timeSpentByAllSolvers / (counter - noSolverSucceeded));
+			String allSolversAvgTimeStr = "--";
+			long allSolversAvgTime = 0;
+			if(noSolverSucceeded < counter) {
+				allSolversAvgTime = timeSpentByAllSolvers / (counter - noSolverSucceeded);
+				allSolversAvgTimeStr = convertNanoToTimeFormat(allSolversAvgTime);
+			}
 			an.write("All combined\n");
 			an.write("-successRate: "+String.format("%.3f", allSolversSuccessRate)+" (FMs not solved: "+noSolverSucceeded+")\n");
-			an.write("-avg_timeSuccesses: "+allSolversAvgTime+"\n");
+			an.write("-avg_timeSuccesses: "+allSolversAvgTimeStr+"\n");
+			
+			an.write("\nDATA\n");
+			an.write("SuccRate\t\t\t\t\t\t\t\tSuccTime\t\t\t\t\t\t\t\tNonSuccTime\n");
+			an.write("HC\tSA\tGA\tHC->SA\tHC->GA\tSA->GA\tComb\t\tHC\tSA\tGA\tHC->SA\tHC->GA\tSA->GA\tComb\t\tHC\tSA\tGA\n");
+			an.write(String.format("%.3f", hcSuccessRate)+"\t"
+					+String.format("%.3f", saSuccessRate)+"\t"
+					+String.format("%.3f", geSuccessRate)+"\t"
+					+String.format("%.3f", hcORsaSuccessRate)+"\t"
+					+String.format("%.3f", hcORgaSuccessRate)+"\t"
+					+String.format("%.3f", saORgaSuccessRate)+"\t"
+					+String.format("%.3f", allSolversSuccessRate)+"\t\t"
+					+String.format("%.0f", hcAvgTimeSucc*0.000001)+"\t"
+					+String.format("%.0f", saAvgTimeSucc*0.000001)+"\t"
+					+String.format("%.0f", gaAvgTimeSucc*0.000001)+"\t"
+					+String.format("%.0f", hcORsaAvgTime*0.000001)+"\t"
+					+String.format("%.0f", hcORgaAvgTime*0.000001)+"\t"
+					+String.format("%.0f", saORgaAvgTime*0.000001)+"\t"
+					+String.format("%.0f", allSolversAvgTime*0.000001)+"\t\t"
+					+String.format("%.0f", hcAvgTimeNonSucc*0.000001)+"\t"
+					+String.format("%.0f", saAvgTimeNonSucc*0.000001)+"\t"
+					+String.format("%.0f", gaAvgTimeNonSucc*0.000001)+"\n");
+			
+			
 			
 			an.write("\nMODEL\t\tAPPROACH\tTIME\tITERATIONS\tSCORE\tRESULT");
 			int index = 0;
