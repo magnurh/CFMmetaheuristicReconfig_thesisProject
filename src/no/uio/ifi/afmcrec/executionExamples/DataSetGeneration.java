@@ -10,28 +10,31 @@ import no.uio.ifi.afmcrec.datasetGeneration.DatasetGenerator;
 public class DataSetGeneration{
 	public static void main(String[] args){
 		
-		String dataSetName = "0420_TestSet04";
+		String dataSetName = "0420_TestSet06";
+//		String dataSetName = "0426_NEWtunigMetaheuristics";
 		
 		int sizeOfDataSet = 600;
 		
 		// AFM Parameters
-		int numberOfFeatures = 90;
+		int numberOfFeatures = 150;
 		int percentageOfCrossTreeConstraints = 35;
+		int maxPercentageOfVFs = 17;
+		int contextMaxSize = 13;
+		
 		int mandatoryProbability = 10;
 		int optionalProbability = 10;
 		int alternativeProbability = 40;
 		int orProbability = 40;
+		
 		int attributeRangeFrom = 0;
 		int attributeRangeTo = 100;
-		int contextMaxSize = 12;
 		int contextMaxValue = 10;
-		int maxNumberOfVFs = 15;
 		
-		DatasetGenerator generator = new DatasetGenerator(dataSetName);
-		generator.setMainParameters(sizeOfDataSet, numberOfFeatures, percentageOfCrossTreeConstraints, maxNumberOfVFs);
+		
+		DatasetGenerator generator = new DatasetGenerator(dataSetName, sizeOfDataSet, numberOfFeatures, percentageOfCrossTreeConstraints, maxPercentageOfVFs);
 		generator.setRelationshipParameters(mandatoryProbability, optionalProbability, alternativeProbability, orProbability);
 		generator.setMaxAttributeRange(attributeRangeFrom, attributeRangeTo);
-		generator.setContextSizeAndRange(contextMaxSize, contextMaxValue);
+		generator.setRelativeContextSizeAndRange(contextMaxSize, contextMaxValue);
 		
 /*		try {
 			generator.generateDataSet();

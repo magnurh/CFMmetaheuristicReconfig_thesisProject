@@ -25,10 +25,37 @@ public class FMConfigTuningGE {
 				};
 	
 		for (int i = 0; i < inputs.length; i++){
-			System.out.println("----- "+i+": 128");
+			System.out.println("----- "+i+": 0.01");
 			FMReconfigurer engine = new FMReconfigurer(inputs[i]);
 			engine.applyGeneticAlgorithm();
-			engine.setGeneticAlgRandomSelectionProbability(0.08);
+			
+			engine.setGeneticAlgInitialPopulationSize(256);
+			engine.setGeneticAlgMutationProbability(0.03);
+			engine.setGeneticAlgCrossoverBreakPoints(1);
+			
+			engine.setGeneticAlgRandomSelectionProbability(0.01);
+			engine.executeReconfig(100);
+			System.out.println("----- "+i+": 0.04");
+			engine.setGeneticAlgRandomSelectionProbability(0.04);
+			engine.executeReconfig(100);
+			System.out.println("----- "+i+": 0.12");
+			engine.setGeneticAlgRandomSelectionProbability(0.12);
+			engine.executeReconfig(100);
+			
+			System.out.println("----- "+i+": 0.01");
+			engine.setGeneticAlgCrossoverBreakPoints(5);
+			
+			engine.setGeneticAlgRandomSelectionProbability(0.01);
+			engine.executeReconfig(100);
+			System.out.println("----- "+i+": 0.04");
+			engine.setGeneticAlgRandomSelectionProbability(0.04);
+			engine.executeReconfig(100);
+			System.out.println("----- "+i+": 0.12");
+			engine.setGeneticAlgRandomSelectionProbability(0.12);
+			engine.executeReconfig(100);
+			
+			
+/*			engine.setGeneticAlgRandomSelectionProbability(0.08);
 			
 			engine.setGeneticAlgInitialPopulationSize(128);
 			engine.setGeneticAlgMutationProbability(0.01);
@@ -97,7 +124,7 @@ public class FMConfigTuningGE {
 			engine.setGeneticAlgCrossoverBreakPoints(5);
 			engine.executeReconfig(100);
 			engine.setGeneticAlgCrossoverBreakPoints(12);
-			engine.executeReconfig(100);
+			engine.executeReconfig(100);*/
 		}
 
 	}
