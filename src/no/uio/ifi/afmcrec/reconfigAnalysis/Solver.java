@@ -667,7 +667,7 @@ public class Solver{
 		
 		int termCount = 0;
 		
-		while(best.score() > 0 && popSize > 1 && termCount < 40){
+		while(best.score() > 0 && popSize > 1 && termCount < 4){
 			geneticAlgTotalIterations++;
 			//System.out.println(geneticAlgTotalIterations+" GenerationSize: "+generation.size());
 			
