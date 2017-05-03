@@ -501,6 +501,7 @@ public class FMReconfigurer{
 				an.write("Init_Pop_Size: "+geneticAlgInitPopSize+"\n");
 				an.write("Crossover_points: "+geneticAlgCrossoverBreakPoints+"\n");
 				an.write("Mutation_prob: "+geneticAlgMutationProbability+"\n");
+				an.write("Random_intro_rate: "+geneticAlgRandomSelection+"\n");
 				an.write("SuccessRate: "+String.format("%.3f", geSuccessRate)+"\n");
 				an.write("Avg_distance_from_global_optimal: "+String.format("%.3f", geAvgDist)+"\n");
 				an.write("Avg_Iterations: "+String.format("%.2f", geAvgIter)+"\n");
