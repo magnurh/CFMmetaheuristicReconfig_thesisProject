@@ -331,7 +331,9 @@ public class DatasetGenerator {
 	
 	private StringBuilder updateHyvarRecScript(StringBuilder hyvarrecInputScript, String fileName, int iteration){
         if (iteration > 1) hyvarrecInputScript.append("echo >> hyvarrecResult.txt\n");
+        hyvarrecInputScript.append("start=`date +%s%N`\n");
         hyvarrecInputScript.append("curl -H \"Content-Type: application/json\" -X POST -d @./afmWithContext/"+fileName+" http://localhost:4000/process >> hyvarrecResult.txt\n");
+        hyvarrecInputScript.append("echo $(($(expr `date +%s%N` - $start)/1000000)) >> hyvarrecTime.txt\n");
         if( iteration*1.0 % (sizeDataSet*1.0 / 20) == 0) hyvarrecInputScript.append("echo \"progress: "+iteration+"/"+sizeDataSet+"\"\n");
         return hyvarrecInputScript;
 	}
