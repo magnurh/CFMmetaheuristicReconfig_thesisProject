@@ -13,4 +13,4 @@ Context_MaxValue: 3
 
 Feature_models
 FILENAME	#FEATURES	#ATTRIBUTES	TOTAL_SIZE	CONTEXTSIZE
-example3.json	16	1	17	2
+exampleCFM.json	16	1	17	2

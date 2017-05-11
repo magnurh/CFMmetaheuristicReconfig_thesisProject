@@ -266,7 +266,7 @@ public class FMReconfigurer{
 					Solver solver = new Solver(fm);
 					
 					executeMetaheuristics(fm, solver);
-					solver.setHyvarrecResult(hyvarrecResults.get(counter));
+					if(hyvarrecResults != null && counter < hyvarrecResults.size()) solver.setHyvarrecResult(hyvarrecResults.get(counter));
 					solver.setVoid(isVoidIndex[counter]);
 					results.put(modelName, solver);
 					
