@@ -2,17 +2,17 @@
  * @author Magnus
  *
  */
-package no.uio.ifi.afmcrec.executionExamples;
+package no.uio.ifi.cfmExecutionExamples;
 
 import es.us.isa.utils.BettyException;
-import no.uio.ifi.afmcrec.datasetGeneration.DatasetGenerator;
+import no.uio.ifi.cfmDatasetGenerator.DatasetGenerator;
 
 public class DataSetGeneration{
 	public static void main(String[] args){
 		
 		String dataSetName = "000_Dataset";
 		
-		int sizeOfDataSet = 100;
+		int sizeOfDataSet = 20;
 		
 		// CFM Parameters
 		int numberOfFeatures = 350;

@@ -2,7 +2,7 @@
  * @author Magnus
  *
  */
-package no.uio.ifi.afmcrec.reconfigAnalysis;
+package no.uio.ifi.cfmReconfigurationEngine;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +19,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import no.uio.ifi.afmcrec.datasetGeneration.DatasetGenerator;
+import no.uio.ifi.cfmDatasetGenerator.DatasetGenerator;
 
 public class FMReconfigurer{
 	

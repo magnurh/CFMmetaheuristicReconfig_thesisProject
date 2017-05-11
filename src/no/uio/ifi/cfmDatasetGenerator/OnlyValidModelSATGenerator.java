@@ -1,4 +1,4 @@
-package es.us.isa.BeTTy.Generators;
+package no.uio.ifi.cfmDatasetGenerator;
 
 import java.util.Random;
 

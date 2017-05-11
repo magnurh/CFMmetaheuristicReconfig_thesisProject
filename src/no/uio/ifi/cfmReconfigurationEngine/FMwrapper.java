@@ -1,4 +1,4 @@
-package no.uio.ifi.afmcrec.reconfigAnalysis;
+package no.uio.ifi.cfmReconfigurationEngine;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

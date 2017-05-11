@@ -2,9 +2,9 @@
  * @author Magnus
  *
  */
-package no.uio.ifi.afmcrec.executionExamples;
+package no.uio.ifi.cfmExecutionExamples;
 
-import no.uio.ifi.afmcrec.reconfigAnalysis.FMReconfigurer;
+import no.uio.ifi.cfmReconfigurationEngine.FMReconfigurer;
 
 public class FMConfigPresentation2 {
 	

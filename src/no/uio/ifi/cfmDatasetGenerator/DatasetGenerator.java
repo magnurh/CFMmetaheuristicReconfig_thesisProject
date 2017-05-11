@@ -5,7 +5,7 @@
  * @author Magnus
  *
  */
-package no.uio.ifi.afmcrec.datasetGeneration;
+package no.uio.ifi.cfmDatasetGenerator;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,15 +18,11 @@ import org.json.simple.JSONObject;
 import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
-import es.us.isa.BeTTy.Generators.OnlyValidModelSATGenerator;
 import es.us.isa.FAMA.models.FAMAAttributedfeatureModel.FAMAAttributedFeatureModel;
 import es.us.isa.FAMA.models.FAMAfeatureModel.FAMAFeatureModel;
 import es.us.isa.FAMA.models.FAMAfeatureModel.Feature;
 import es.us.isa.FAMA.models.FAMAfeatureModel.Relation;
 import es.us.isa.FAMA.models.domain.Range;
-import es.us.isa.benchmarking.Benchmark;
-import es.us.isa.benchmarking.FAMABenchmark;
-import es.us.isa.benchmarking.RandomExperiment;
 import es.us.isa.generator.FM.AbstractFMGenerator;
 import es.us.isa.generator.FM.FMGenerator;
 import es.us.isa.generator.FM.GeneratorCharacteristics;

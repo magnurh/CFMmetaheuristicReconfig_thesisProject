@@ -2,7 +2,7 @@
  * @author Magnus
  *
  */
-package no.uio.ifi.afmcrec.reconfigAnalysis;
+package no.uio.ifi.cfmReconfigurationEngine;
 
 import java.util.ArrayList;
 import java.util.Arrays;

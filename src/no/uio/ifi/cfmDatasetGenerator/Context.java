@@ -2,7 +2,7 @@
  * @author Magnus
  *
  */
-package no.uio.ifi.afmcrec.datasetGeneration;
+package no.uio.ifi.cfmDatasetGenerator;
 
 import java.util.concurrent.ThreadLocalRandom;
 

@@ -14,7 +14,7 @@
  *     You should have received a copy of the GNU Lesser General Public License
  *     along with Betty.  If not, see <http://www.gnu.org/licenses/>.
  */
-package no.uio.ifi.afmcrec.datasetGeneration;
+package no.uio.ifi.cfmDatasetGenerator;
 
 import es.us.isa.FAMA.Reasoner.QuestionTrader;
 import es.us.isa.FAMA.Reasoner.questions.NumberOfProductsQuestion;
