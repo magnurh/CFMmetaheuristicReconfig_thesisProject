@@ -284,7 +284,7 @@ public class DatasetGenerator {
 		int depth = 5;
 		int paths = countMandAltPaths(fm, root, depth);
 		System.out.println(paths);
-		int threshold = Integer.max(Integer.min(30, (int) (numberOfFeatures*0.10)), depth);
+		int threshold = Integer.max(Integer.min(15, (int) (numberOfFeatures*0.10)), depth);
 		System.out.println("t: "+threshold);
 		return paths - threshold;
 	}

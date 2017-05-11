@@ -13,7 +13,7 @@ import es.us.isa.generator.FM.GeneratorCharacteristics;
 
 public class OnlyValidModelSATGenerator extends AbstractFMGeneratorDecorator {
 
-	int maxtries = 20;
+	int maxtries = 200;
 
 	public OnlyValidModelSATGenerator(IGenerator gen) {
 		super(gen);
