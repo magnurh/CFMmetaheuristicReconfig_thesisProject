@@ -1,9 +1,9 @@
-# AFMwC-thesisProject
+# CFM Metaheuristic Reconfiguration - Thesis Project
 
 ## About
 
 This project is a part of my Master thesis. It contains two tools: 
-### A Dataset Generator that creates sets of Context-dependant Feature Models (CFMs).
+### A Dataset Generator that creates sets of Context-dependent Feature Models (CFMs).
 - Package: **no.uio.ifi.cfmDatasetGenerator**
 - Applies the BeTTy framework (www.isa.us.es/betty) to construct Feature Models, and extends them with a context and Validity Formulas
 - The generator can be instructed to limit the number of void models, but does not guarantee that no CFMs are void.
