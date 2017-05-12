@@ -33,11 +33,7 @@ import es.us.isa.utils.FMWriter;
 
 public class DatasetGenerator {
 	
-	String generalNameOfDataset;
-	
-	// Variables for filing
-	//private String timeStamp;
-	//private String directory;
+	private String generalNameOfDataset;
 	
 	/** 
 	 * Parameters 
@@ -46,7 +42,6 @@ public class DatasetGenerator {
 	private int sizeDataSet = 10;
 	private int numberOfFeatures = 50;
 	private int percentageCTC = 20;
-	//private int extendedCTC = 10;
 	
 	// Relationship parameters
 	private int probAlt = 0;
@@ -248,7 +243,7 @@ public class DatasetGenerator {
 	        
 	        AFMextender afmParser = new AFMextender(numberOfFeatures-1, contextMaxSize, contextMaxValue);
 	        JSONObject afmcJSON = afmParser.generateAFMwithContext(afmFileDir);
-	        String jsonFilename = String.format("%04d", i)+"_aFMwC.json";
+	        String jsonFilename = String.format("%04d", i)+"_CFM.json";
 	        writeJsonToFile(jsonFilename, directory, afmcJSON);
 	        
 	        updateLog(log, jsonFilename, afmParser);
@@ -271,31 +266,24 @@ public class DatasetGenerator {
 	
 	private int countMandAltPaths(FAMAFeatureModel fm, Feature root, int level){		
 		if (level == 0) {
-			//System.out.println("/");
 			return 1;
 		}
 		int paths = 1;
 		Iterator<Relation> relations = root.getRelations();
-		//System.out.println("("+level+") "+root+": ");
 		while(relations.hasNext()){
 			Relation rel = relations.next();
 			Iterator<Feature> children = rel.getDestination();
 			if(rel.isMandatory()){
 				while(children.hasNext()){
-					//System.out.print("!");
 					paths += countMandAltPaths(fm, children.next(), level-1);
-					//System.out.println("p: "+paths);
 				}
 			}else if(rel.isAlternative() || rel.isOr()){
 				int smallestRes = Integer.MAX_VALUE;
 				while(children.hasNext()){
-					//System.out.print("[");
 					int res = countMandAltPaths(fm, children.next(), level-1);
 					if(res < smallestRes) smallestRes = res;
 				}
-				paths += smallestRes;
-				//System.out.println("p: "+paths);
-				
+				paths += smallestRes;				
 			}
 		}
 		return paths;
@@ -305,14 +293,14 @@ public class DatasetGenerator {
 		String timeStamp = timeStamp();
 		String directory = generalNameOfDataset+"/"+timeStamp;
 		new File("./out/data/"+directory+"/afm").mkdirs();
-		new File("./out/data/"+directory+"/afmWithContext").mkdirs();
+		new File("./out/data/"+directory+"/CFM").mkdirs();
 		return directory;
 	}
 	
 	private StringBuilder updateHyvarRecScript(StringBuilder hyvarrecInputScript, String fileName, int iteration){
         if (iteration > 1) hyvarrecInputScript.append("echo >> hyvarrecResult.txt\n");
         hyvarrecInputScript.append("start=`date +%s%N`\n");
-        hyvarrecInputScript.append("curl -H \"Content-Type: application/json\" -X POST -d @./afmWithContext/"+fileName+" http://localhost:4000/process >> hyvarrecResult.txt\n");
+        hyvarrecInputScript.append("curl -H \"Content-Type: application/json\" -X POST -d @./CFM/"+fileName+" http://localhost:4000/process >> hyvarrecResult.txt\n");
         hyvarrecInputScript.append("echo $(($(expr `date +%s%N` - $start)/1000000)) >> hyvarrecTime.txt\n");
         if( iteration*1.0 % (sizeDataSet*1.0 / 20) == 0) hyvarrecInputScript.append("echo \"progress: "+iteration+"/"+sizeDataSet+"\"\n");
         return hyvarrecInputScript;
@@ -329,7 +317,7 @@ public class DatasetGenerator {
 	private StringBuilder startLog(String directory){
 		StringBuilder log = new StringBuilder();
 		log.append("./out/data/"+directory+"/dataset.txt");
-		log.append("\n./out/data/"+directory+"/afmWithContext");
+		log.append("\n./out/data/"+directory+"/CFM");
 		log.append("\nSize_dataSet: "+sizeDataSet);
 		log.append("\nSize_AFM: "+numberOfFeatures);
 		log.append("\nPercentage_CTC: "+percentageCTC);
@@ -363,7 +351,7 @@ public class DatasetGenerator {
 	}
 	
 	private void writeJsonToFile(String fileName, String directory, JSONObject afmcJSON){
-        String jsonFileDir = "./out/data/"+directory+"/afmWithContext/"+fileName;
+        String jsonFileDir = "./out/data/"+directory+"/CFM/"+fileName;
         try {
         	FileWriter file = new FileWriter(jsonFileDir);
     		file.write(afmcJSON.toJSONString());

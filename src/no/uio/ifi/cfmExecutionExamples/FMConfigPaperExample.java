@@ -1,13 +1,13 @@
 package no.uio.ifi.cfmExecutionExamples;
 
-import no.uio.ifi.cfmReconfigurationEngine.FMReconfigurer;
+import no.uio.ifi.cfmReconfigurationEngine.CFMReconfigurer;
 
 public class FMConfigPaperExample {
 
 	public static void main(String[] args) {
 		String input = "./data/PAPER_TESTMODEL/dataset.txt";
 		System.out.println("Example from thesis paper: "+input);
-		FMReconfigurer engine = new FMReconfigurer(input);
+		CFMReconfigurer engine = new CFMReconfigurer(input);
 		
 		engine.applyHillClimbing();				
 		engine.applySimulatedAnnealing();

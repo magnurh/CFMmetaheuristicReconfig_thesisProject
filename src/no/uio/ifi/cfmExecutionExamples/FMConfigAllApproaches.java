@@ -4,7 +4,7 @@
  */
 package no.uio.ifi.cfmExecutionExamples;
 
-import no.uio.ifi.cfmReconfigurationEngine.FMReconfigurer;
+import no.uio.ifi.cfmReconfigurationEngine.CFMReconfigurer;
 
 public class FMConfigAllApproaches {
 	
@@ -42,19 +42,23 @@ public class FMConfigAllApproaches {
 				};*/
 
 				
+//		String[] inputs = {
+//				"./out/data/0420_TestSet04/170420-094155/dataset.txt",
+//				"./out/data/0420_TestSet04/170420-094231/dataset.txt",
+//				"./out/data/0420_TestSet04/170420-094238/dataset.txt",
+//				"./out/data/0420_TestSet04/170420-094252/dataset.txt",
+//				"./out/data/0420_TestSet04/170420-094302/dataset.txt",
+//				"./out/data/0420_TestSet04/170420-094325/dataset.txt"
+//				};
+		
 		String[] inputs = {
-				"./out/data/0420_TestSet04/170420-094155/dataset.txt",
-				"./out/data/0420_TestSet04/170420-094231/dataset.txt",
-				"./out/data/0420_TestSet04/170420-094238/dataset.txt",
-				"./out/data/0420_TestSet04/170420-094252/dataset.txt",
-				"./out/data/0420_TestSet04/170420-094302/dataset.txt",
-				"./out/data/0420_TestSet04/170420-094325/dataset.txt"
-				};
+				"./out/data/000_Dataset/170512-093813/dataset.txt"
+		};
 
 	
 		for (int i = 0; i < inputs.length; i++){
 			System.out.println("----- "+i);
-			FMReconfigurer engine = new FMReconfigurer(inputs[i]);
+			CFMReconfigurer engine = new CFMReconfigurer(inputs[i]);
 			engine.applyHillClimbing();
 			engine.applySimulatedAnnealing();
 			engine.applyGeneticAlgorithm();
@@ -72,7 +76,7 @@ public class FMConfigAllApproaches {
 			engine.setGeneticAlgMutationProbability(0.04);
 			
 			for(int j = 0; j < 1; j++){
-				engine.executeReconfig(500);
+				engine.executeReconfig();
 			}
 /*			
 			engine.executeReconfig(40);

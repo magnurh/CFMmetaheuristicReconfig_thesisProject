@@ -4,7 +4,7 @@
  */
 package no.uio.ifi.cfmExecutionExamples;
 
-import no.uio.ifi.cfmReconfigurationEngine.FMReconfigurer;
+import no.uio.ifi.cfmReconfigurationEngine.CFMReconfigurer;
 
 public class FMConfigPresentation2 {
 	
@@ -12,7 +12,7 @@ public class FMConfigPresentation2 {
 		
 		String input = "./out/data/170112-233525_Stage1/dataset.txt";
 		System.out.println("pres1_set1: "+input);
-		FMReconfigurer engine = new FMReconfigurer(input);
+		CFMReconfigurer engine = new CFMReconfigurer(input);
 		
 		engine.applyHillClimbing();				
 		engine.applySimulatedAnnealing();
@@ -47,7 +47,7 @@ public class FMConfigPresentation2 {
 		
 		input = "./out/data/170112-233247_Stage1/dataset.txt";
 		System.out.println("pres1_set2: "+input);
-		engine = new FMReconfigurer(input);
+		engine = new CFMReconfigurer(input);
 		
 		engine.applyHillClimbing();				
 		engine.applySimulatedAnnealing();
@@ -82,7 +82,7 @@ public class FMConfigPresentation2 {
 		
 		input = "./out/data/170205-200838_Stage1/dataset.txt";
 		System.out.println("set3 same parameters as pres1_set1: "+input);
-		engine = new FMReconfigurer(input);
+		engine = new CFMReconfigurer(input);
 
 		engine.applyHillClimbing();				
 		engine.setHillClimbMaxPlateauIterations(0);
@@ -116,7 +116,7 @@ public class FMConfigPresentation2 {
 
 		input = "./out/data/170205-205528_Stage1/dataset.txt";
 		System.out.println("set4 100 Large models (no way of knowing if they are void): "+input);
-		engine = new FMReconfigurer(input);
+		engine = new CFMReconfigurer(input);
 		engine.applyHillClimbing();				
 		engine.setHillClimbMaxPlateauIterations(0);
 		engine.setHillClimbNumberOfExecutions(1);

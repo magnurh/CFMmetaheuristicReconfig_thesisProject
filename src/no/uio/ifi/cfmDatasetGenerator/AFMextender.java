@@ -86,7 +86,6 @@ public class AFMextender implements VarModelExtender{
 		for (int i = 0; i < extcCounter; i++){
 			
 			String extConstString = extendedConstraints.get(i);
-			//System.out.println(" ---> "+extConstString);								//
 			String[] extConstArr = extConstString.split("\\s+");
 			
 			int idf = extractFirstIntFromString(extConstArr[0]);
@@ -107,11 +106,9 @@ public class AFMextender implements VarModelExtender{
 			boolean VFwithAttribute = Math.random() > 0.5;
 			if (VFwithAttribute || isMandatoryFromRoot(idf, afmc.constraints)){
 				int attr_idf = extractFirstIntFromString(extConstArr[0]);
-				//int ida = (attr_idf*1000) + extractSecondIntFromString(extConstArr[4]); // Change to start on last idf+1
 				int ida = incrementingID;
 				if(addedAttributes.containsKey(attr_idf)){
 					ida = addedAttributes.get(attr_idf);
-					//System.out.println("Re-using feature-attribute pair: F"+attr_idf+", Attr"+ida);		//
 				}else{
 					ida = ++incrementingID;
 					noAttributes++;
@@ -149,17 +146,7 @@ public class AFMextender implements VarModelExtender{
 					else attributeEQ = "=";
 				}
 				if(attributeEQ.equals("==")) attributeEQ = "=";
-				
-				//System.out.println("(feature[_id"+idf+"] = 1 impl (((context[_idc"+idc+"] "+contextEQ+"  "+cValue+" ) impl (attribute[_idatt"+ida+"] "+attributeEQ+"  "+attrValue+" ))))");
 				afmc.addVF(attr_idf, idc, contextEQ, cValue, ida, attributeEQ, attrValue);
-				//System.out.println("Context: ("+idc+") "+cValue+" in ["+context.getRangeMin(idc)+", "+context.getRangeMax(idc)+"]");
-				//System.out.println("Attribute: ("+ida+") "+attrValue+" in ["+attrMin+", "+attrMax+"]"+" F"+attr_idf);
-				//System.out.println("-");
-				
-				// ida: idatt (new attribute with feature 25 and random range [0,m]?
-				// attrEQ: extConstArr[5]
-				// originalAValue = extractFirstIntFrom(extConstArr[6])
-				// aValue: (int) originalAValue * (Double)(m/100)
 			}else{
 //				System.out.println("Add VF: F"+idf+" impl (C"+idc+" "+contextEQ+" "+cValue+")");
 				afmc.addVF(idf, idc, contextEQ, cValue);
@@ -240,14 +227,9 @@ public class AFMextender implements VarModelExtender{
 			}
 			else parent = extractFirstIntFromString(parentString);
 			
-			//System.out.println(parent+" : "+childrenString);
-			//System.out.println("Parent: "+parent);
 			for (int j = 0; j < children.length; j++){
-				//System.out.print("|"+children[j]);
 				if (!children[j].isEmpty()){
-					
-					String element = children[j];
-					
+					String element = children[j];					
 					// End of a group
 					if (element.charAt(0) == '}'){
 						int[] groupInt = convertIntegersToInt(group);
@@ -257,7 +239,6 @@ public class AFMextender implements VarModelExtender{
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
-							//System.out.println("Insert OR");
 							orGroup = false;
 						}else if (altGroup){
 							try {
@@ -266,7 +247,6 @@ public class AFMextender implements VarModelExtender{
 								e.printStackTrace();
 							}
 							altGroup = false;
-							//System.out.println("Insert ALT");
 						}
 						group = new ArrayList<Integer>();
 						element = element.substring(1);
@@ -277,32 +257,26 @@ public class AFMextender implements VarModelExtender{
 						int c = extractFirstIntFromString(element);
 						if (orGroup || altGroup) {
 							group.add(c);
-							//System.out.println("Add to group");
 						}else {
 							mandatoryChildren.add(c);
-							//System.out.println("Add to mandatory");
 						}
 						
 					//Beginning of a group
 					}else if(element.charAt(0) == '{'){
 						int c = extractFirstIntFromString(element);
 						group.add(c);
-						//System.out.println("Add to group - first");
 						
 					//Either optional or interval
 					}else if(element.charAt(0) == '['){
 						if(element.charAt(1) == 'F'){
 							int c = extractFirstIntFromString(element);
 							optionalChildren.add(c);
-							//System.out.println("Add to optional");
 						}else{
 							int intervalRoof = extractLastIntFromString(element);
 							if (intervalRoof == 1) {
 								altGroup = true;
-								//System.out.println("Begin ALT group");
 							}else if (intervalRoof > 1) {
 								orGroup = true;
-								//System.out.println("Begin OR group");
 							}
 						}
 					}
@@ -310,10 +284,8 @@ public class AFMextender implements VarModelExtender{
 			}
 			int[] mandatoryChildrenInt = convertIntegersToInt(mandatoryChildren);
 			afmc.setMandatoryConstraints(parent, mandatoryChildrenInt);
-			//System.out.println("Insert Mandatory");
 			int[] optionalChildrenInt = convertIntegersToInt(optionalChildren);
 			afmc.setOptionalConstraints(parent, optionalChildrenInt);
-			//System.out.println("Insert Optional");
 		}
 	}
 	

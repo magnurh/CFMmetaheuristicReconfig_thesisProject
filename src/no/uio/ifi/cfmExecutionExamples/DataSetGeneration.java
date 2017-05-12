@@ -15,7 +15,7 @@ public class DataSetGeneration{
 		int sizeOfDataSet = 20;
 		
 		// CFM Parameters
-		int numberOfFeatures = 350;
+		int numberOfFeatures = 35;
 		int percentageOfCrossTreeConstraints = 35;
 		int maxPercentageOfVFs = 17;
 		int contextMaxSize = 13;

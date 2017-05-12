@@ -1,6 +1,6 @@
 package no.uio.ifi.cfmExecutionExamples;
 
-import no.uio.ifi.cfmReconfigurationEngine.FMReconfigurer;
+import no.uio.ifi.cfmReconfigurationEngine.CFMReconfigurer;
 
 public class mainTest01 {
 
@@ -85,7 +85,7 @@ public class mainTest01 {
 		
 		for (int i = 0; i < inputs150.length; i++){
 			System.out.println("--150--- "+i);
-			FMReconfigurer engine = new FMReconfigurer(inputs150[i]);
+			CFMReconfigurer engine = new CFMReconfigurer(inputs150[i]);
 			engine.applyHillClimbing();
 			engine.applySimulatedAnnealing();
 //			engine.applyGeneticAlgorithm();
@@ -118,7 +118,7 @@ public class mainTest01 {
 	
 		for (int i = 0; i < inputs.length; i++){
 			System.out.println("----- "+i);
-			FMReconfigurer engine = new FMReconfigurer(inputs[i]);
+			CFMReconfigurer engine = new CFMReconfigurer(inputs[i]);
 			engine.applyHillClimbing();
 			engine.applySimulatedAnnealing();
 //			engine.applyGeneticAlgorithm();

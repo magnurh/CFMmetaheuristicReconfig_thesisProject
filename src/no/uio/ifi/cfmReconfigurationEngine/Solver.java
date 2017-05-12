@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Solver{
 	
-	FMwrapper FM;
+	CFMwrapper FM;
 	
 	private int hillClimbAllowedPlateauIterations = 0;
 	
@@ -33,7 +33,7 @@ public class Solver{
 	private String hyvarrecResult = "";
 	private boolean voidModel = false;
 	
-	Solver(FMwrapper FM){
+	Solver(CFMwrapper FM){
 		this.FM = FM;
 		nullifyLogValues();
 	}

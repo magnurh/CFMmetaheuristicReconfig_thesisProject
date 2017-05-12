@@ -15,7 +15,7 @@ public class ExpressionEvaluator{
 	private HashMap<String, HashMap<String, Boolean>> expressionsEvaluated = new HashMap<String, HashMap<String, Boolean>>();
 	private HashMap<String, HashMap<String, Boolean>> expressionsEvaluated2 = new HashMap<String, HashMap<String, Boolean>>();
 	private HashMap<String, Boolean> contextEvaluated = new HashMap<String, Boolean>();
-	FeatureModel fm;
+	ContextDepFeatureModel fm;
 	
 	private static Pattern eqNotation = Pattern.compile("([!><]=|[=><])");
 	private static Pattern singleEqSignPattern = Pattern.compile(" = ");
@@ -38,7 +38,7 @@ public class ExpressionEvaluator{
 	
 	private static Pattern contextPattern = Pattern.compile("\\(context\\[_idc\\d+\\] ([!><]=|[=><])  \\d+\\s\\)");
 	
-	ExpressionEvaluator(FeatureModel fm){
+	ExpressionEvaluator(ContextDepFeatureModel fm){
 		this.fm = fm;
 	}
 	

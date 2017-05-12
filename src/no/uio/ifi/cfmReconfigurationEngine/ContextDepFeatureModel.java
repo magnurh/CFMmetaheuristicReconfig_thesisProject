@@ -5,11 +5,9 @@
 package no.uio.ifi.cfmReconfigurationEngine;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,15 +15,13 @@ import java.util.regex.Pattern;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
-public class FeatureModel{
+public class ContextDepFeatureModel{
 		
 	private HashMap<String, Attribute> attributes;
 	private HashMap<String, ContextVar> context;
 	private ArrayList<String> constraints;
 	private ArrayList<ArrayList<Integer>> idsInConstraints;
 	private HashSet<Integer> selectedFeatures;
-	private HashSet<String> nonSelectableFeatures;
-	
 	private int size;
 	private int numberOfFeatures;
 	private int numberOfAttributes;
@@ -33,14 +29,14 @@ public class FeatureModel{
 	
 	private Pattern assignedFeatPattern = Pattern.compile("feature\\[_id\\d+\\] = [01]");
 	
-	FeatureModel(JSONObject FM, int size){
+	ContextDepFeatureModel(JSONObject FM, int size){
 		attributes = new HashMap<String, Attribute>();
 		context = new HashMap<String, ContextVar>();
 		constraints = new ArrayList<String>();
 		idsInConstraints = new ArrayList<ArrayList<Integer>>();
 		initializeIdsInConstraints(size);
 		selectedFeatures = new HashSet<Integer>();
-		nonSelectableFeatures = new HashSet<String>();
+		new HashSet<String>();
 		populate(FM);
 	}
 	
@@ -50,6 +46,7 @@ public class FeatureModel{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void populate(JSONObject FM){
 		JSONObject configJSON = (JSONObject) FM.get("configuration");
 		
@@ -135,7 +132,6 @@ public class FeatureModel{
 	}
 	
 	public int[] getAttributeRange(int attIndex){
-		// attribute[_idatt40] <  43 		
 		String attId = "attribute[_idatt"+attIndex+"]";
 		Attribute a = attributes.get(attId);
 		
@@ -148,7 +144,6 @@ public class FeatureModel{
 	}
 	
 	private void setMultiRange(int index, Attribute a){
-		ArrayList<Integer> newRange = new ArrayList<Integer>();
 		String attributeConstraintPattern = ".*attribute\\[_idatt"+index+"\\] ([!><]=|[=><])  \\d+.*";
 		
 		for (String constraint : constraints){
@@ -188,7 +183,6 @@ public class FeatureModel{
 				//System.out.println("Added to selected features: feature[_id"+f+"]");		//
 				HashSet<Integer> dependentFeatures = findDependentFeatures(f);
 				for (Integer g : dependentFeatures){
-				//	System.out.println("Add to queue: feature[_id"+g+"]");		//
 					if (!selectedFeatures.contains(g)) queue.add(g);
 				}
 				queue.remove(f);
@@ -201,17 +195,13 @@ public class FeatureModel{
 		String selectedIdsPattern = generateOrPatternFromSetOfIntegers(selectedFeatures);
 		//System.out.println(selectedIdsPattern);
 		String obsoleteRulePattern = "\\(*.* impl \\(*(feature\\[_id\\d+\\] = [01] or )*feature\\[_id"+selectedIdsPattern+"\\] = 1( or feature\\[_id\\d+\\] = [01])*\\)*";
-					// feature[_id4] = 1 impl (feature[_id12] = 1 or feature[_id13] = 1)
 		for(ListIterator<String> constrIter = constraints.listIterator(); constrIter.hasNext();){
 			String rule = constrIter.next();
 			if(rule.matches(obsoleteRulePattern)){
-				//System.out.println("Is obsolete: "+rule);
 				constrIter.remove();
 			}else{
-				//System.out.println("Not obsolete: "+rule);
 			}
 		}
-		//for(String c : constraints) System.out.println(c);
 		
 	}
 	
@@ -233,26 +223,13 @@ public class FeatureModel{
 				constraintNumbers.add(i);
 			}
 		}
-/*		for (int k = 0; k < idsInConstraints.size(); k++){
-			System.out.println("id "+k+" is contained in:");
-			ArrayList<Integer> constraintNumbers = idsInConstraints.get(k);
-			for (int l : constraintNumbers){
-				System.out.println(l+": "+constraints.get(l));
-			}
-		}*/
 	}
 	private HashSet<Integer> findDependentFeatures(int trueFeat){
-		//TODO: add features where exp value is 0 to set of features that cannot be selected
 		HashSet<Integer> dependentFeatures = new HashSet<Integer>();
 		ArrayList<String> constraintsToBeRemoved = new ArrayList<String>();
-		//String requiresOrExcludesPattern = "\\(?feature\\[_id"+trueFeat+"\\] = 1 impl \\(?feature\\[_id\\d+\\] = [01]( and feature\\[_id\\d+\\] = [01])*\\){0,2}";
 		String requiresPattern = "\\(*(feature\\[_id\\d+\\] = 1 or )*feature\\[_id"+trueFeat+"\\] = 1( or feature\\[_id\\d+\\] = 1)*\\)* impl \\(?feature\\[_id\\d+\\] = 1( and feature\\[_id\\d+\\] = 1)*\\)*";
 		
-		for (String constraint : constraints){
-			// Strings to match:
-			// "feature[_id"+trueFeat+"] = 1 impl (feature[_id4] = 1 and feature[_id6] = 1 and feature[_id8] = 1)",
-			// "(feature[_id17] = 1 impl feature[_id12] = 1)"
-			
+		for (String constraint : constraints){			
 			if (constraint.matches(requiresPattern)){
 				boolean constraintCanBeRemoved = true;
 				String[] r = constraint.split(" impl ");

@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,9 +14,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class FMwrapper{
+public class CFMwrapper{
 	
-	private FeatureModel fm;
+	private ContextDepFeatureModel fm;
 	private String modelName;
 	public ExpressionEvaluator eval;
 	private int numberOfFeatures;
@@ -30,7 +29,7 @@ public class FMwrapper{
 	ArrayList<int[]> neighborhoodChangeIndex = new ArrayList<int[]>();
 	ArrayList<Integer> shuffledNeighborhoodIndexes = new ArrayList<Integer>();
 	
-	FMwrapper(String dir, String modelName, int numberOfFeatures, int numberOfAttributes, int size, int contextSize){
+	CFMwrapper(String dir, String modelName, int numberOfFeatures, int numberOfAttributes, int size, int contextSize){
 		fm = importFM(dir+"/"+modelName, size);
 		this.modelName = modelName;
 		eval = new ExpressionEvaluator(fm);
@@ -60,24 +59,16 @@ public class FMwrapper{
 				notSatConstraints += 1;
 			}
 		}
-		//System.out.println("Actually unsatisfied constraints");			//
-		//System.out.println(vectStr);									//
-		//for(String r : unsatConstraints) System.out.println(r);			//
 		savedScores.put(vectStr, notSatConstraints);
 		return notSatConstraints;
 	}
 	
 	public HashSet<String> scoreAndReturnUnsatConstraints(int[] vect){
-		//TODO: add saving and retrieving of set of unsatisfied constraints
-		String vectStr = eval.getVectorAsString(vect);
 		HashSet<String> unsatisfiedConstraints = new HashSet<String>();
 		ArrayList<String> constraints = fm.getConstraints();
 		for (String r : constraints){
 			if(!eval.evaluate(r, vect)) unsatisfiedConstraints.add(r);
 		}
-		//System.out.println(vectStr);
-		//for(String c : unsatisfiedConstraints) System.out.println(c);//
-		//savedScores.put(vectStr, unsatisfiedConstraints.size());
 		return unsatisfiedConstraints;
 	}
 	
@@ -100,10 +91,8 @@ public class FMwrapper{
 		HashSet<String> currentUnsatisfiedConstraints = new HashSet<String>(parentUnsatisfiedConstraints);
 		int changeIndex = getChangeIndex(neighborhoodNumber);
 		ArrayList<String> constraintsToBeEvaluated = fm.getConstraintsContainingId(changeIndex);
-		//System.out.println(vectStr);			//
 		for (String constraint : constraintsToBeEvaluated){
 			boolean evaluation = eval.evaluate(constraint, vect);
-			//System.out.println(constraint+" : "+evaluation+" ("+changeIndex+")");		//
 			if(evaluation){
 				if(currentUnsatisfiedConstraints.contains(constraint)){
 					currentUnsatisfiedConstraints.remove(constraint);
@@ -112,7 +101,6 @@ public class FMwrapper{
 				currentUnsatisfiedConstraints.add(constraint);
 			}
 		}
-		//for(String c : currentUnsatisfiedConstraints) System.out.println(c+" ("+changeIndex+")"); 	//
 		//System.out.println("Score: "+currentUnsatisfiedConstraints.size());
 		return currentUnsatisfiedConstraints;
 	}
@@ -151,12 +139,7 @@ public class FMwrapper{
 				if (changeIndexNotFilled) neighborhoodChangeIndex.add(new int[]{i, 0});
 			}else{
 				int[] attrRange = fm.getAttributeRange(i);
-/*				System.out.print("Range for attr "+i+":");		//
-				for (int l = 0; l < attrRange.length; l++){		//
-					System.out.print(attrRange[l]+",");				//	
-				}								//
-				System.out.println();							//
-*/				int valIndex = ThreadLocalRandom.current().nextInt(0, attrRange.length);
+				int valIndex = ThreadLocalRandom.current().nextInt(0, attrRange.length);
 				newCandidate[i] = attrRange[valIndex];
 				if (changeIndexNotFilled) neighborhoodChangeIndex.add(new int[]{i, 1});
 				if (changeIndexNotFilled) neighborhoodChangeIndex.add(new int[]{i, -1});
@@ -187,11 +170,9 @@ public class FMwrapper{
 	
 	// Returns neighborhood of input vector v 
 	public int[][] N(int[] v){
-		
 		// The maximum size of a neighborhood will be the number of binary variables (features that can vary) 
 		// plus two times nonBinary variables (attributes - they may change in either direction)
 		int nSize = numberOfFeatures - alwaysSelected.size() + (numberOfAttributes*2);
-		//System.out.println("Size of N = "+numberOfFeatures+" - "+alwaysSelected.size()+" + "+numberOfAttributes+"*2 = "+nSize);
 		int cutOffNeighborhood = 0;
 		int[][] neighborhood = new int[nSize][candidateLength];
 		
@@ -214,7 +195,6 @@ public class FMwrapper{
 				}else{
 					neighborhood[i][j] = attInc;
 					increaseSuccessfull = true;
-					//System.out.println(""+attInc+" at ("+i+","+j+") -> "+neighborhood[i][j]);				//
 				}
 				
 				int attDec = dec(j, v[j]);
@@ -226,7 +206,6 @@ public class FMwrapper{
 						System.arraycopy(v, 0, neighborhood[i], 0, candidateLength);
 					}
 					neighborhood[i][j] = attDec;
-					//System.out.println(""+attDec+" at ("+i+","+j+") -> "+neighborhood[i][j]);				//
 				}
 			}
 			j++;
@@ -236,24 +215,13 @@ public class FMwrapper{
 		int[][] finalNeighborhood;
 		
 		if (cutOffNeighborhood > 0){
-			//System.out.print("Cut away from neighborhood: "+nSize+" - "+cutOffNeighborhood);		//
 			finalNeighborhood = new int[nSize-cutOffNeighborhood][candidateLength];
 			for (int i = 0; i < finalNeighborhood.length; i++){
 				finalNeighborhood[i] = neighborhood[i];																	
 			}
-			//System.out.println(" = "+finalNeighborhood.length);			//
 		}else{
 			finalNeighborhood = neighborhood;
 		}
-/*		
-		System.out.println("\nNeighborhood: ");														//
-		for (int i = 0; i < finalNeighborhood.length; i++){											//
-			System.out.print(i+"\t");																//
-			for (int k = 0; k < candidateLength; k++) System.out.print(finalNeighborhood[i][k]+" ");	//
-			System.out.println();																	//
-		}																							//
-		System.out.println();																		//
-*/		
 		return finalNeighborhood;
 	}
 	
@@ -278,29 +246,18 @@ public class FMwrapper{
 		}
 	}
 	
-	// Example: [0,5,24]
 	private int inc(int attId, int v){
 		Attribute a = fm.getAttribute(attId);
 		int[] attRange = a.getRange();
 		
-/*		System.out.print("Inc "+v+" in (");					//
-		for (int i = 0; i < attRange.length-1; i++){		//
-			System.out.print(attRange[i]+", ");
-		}													//
-		System.out.print(attRange[attRange.length-1]+") -> ");	//
-*/		
-		
 		if (a.isRangeComplete()) {
-//			System.out.println(""+incByInterval(attRange, v));	//
 			return incByInterval(attRange, v);
 		}
 		
 		int max = attRange[attRange.length-1];
 		if (v >= max) {
-//			System.out.println("false");				//
 			return -1;
 		}
-//		System.out.println(""+(v+1));					//
 		return ++v;
 	}
 	
@@ -316,25 +273,15 @@ public class FMwrapper{
 	private int dec(int attId, int v){
 		Attribute a = fm.getAttribute(attId);
 		int[] attRange = a.getRange();
-		
-/*		System.out.print("Dec "+v+" in (");					//
-		for (int i = 0; i < attRange.length-1; i++){		//
-			System.out.print(attRange[i]+", ");
-		}													//
-		System.out.print(attRange[attRange.length-1]+") -> ");	//
-*/		
 		if (a.isRangeComplete()) {
-//			System.out.println(""+decByInterval(attRange, v));	//
 			return decByInterval(attRange, v);
 		}
 		
 		int min = attRange[0];
 		if (v <= min) {
-//			System.out.println("false");				//
 			return -1;
 		}
 		
-//		System.out.println(""+(v-1));					//
 		return --v;
 	}
 	
@@ -357,21 +304,18 @@ public class FMwrapper{
 	}
 	
 	
-	private FeatureModel importFM(String dir, int size){
-		FeatureModel fm = null;
+	private ContextDepFeatureModel importFM(String dir, int size){
+		ContextDepFeatureModel fm = null;
 		
 		JSONParser parser = new JSONParser();
 		try {
 			JSONObject fmJSON = (JSONObject) parser.parse(new FileReader(dir));
-			fm = new FeatureModel(fmJSON, size);
+			fm = new ContextDepFeatureModel(fmJSON, size);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -389,9 +333,7 @@ public class FMwrapper{
 		System.arraycopy(candidate, 0, neighbor, 0, candidate.length);
 		int[] positionToChange = neighborhoodChangeIndex.get(neighborIndex);
 		int pos = positionToChange[0];
-		
-		//System.out.println("Neighb index "+neighborIndex+" gives position "+pos+" in "+eval.getVectorAsString(candidate));
-		
+				
 		int direction = positionToChange[1];
 		if(pos >= numberOfFeatures){
 			if (direction > 0){
@@ -405,33 +347,11 @@ public class FMwrapper{
 		}else{
 			neighbor[pos] = negate(candidate[pos]);
 		}
-/*		System.out.println("Original candidate:");
-		System.out.println("Neighbor "+neighborIndex+" - changed at position "+pos);
-		for(int i = 0; i < candidate.length; i++){
-			System.out.print(i+" ");
-		}
-		System.out.println();
-		for(int i = 0; i < candidate.length; i++){
-			String padding = " ";
-			if(i > 9 && i < 100) padding = "  ";
-			else if(i > 99 && i < 1000) padding = "   ";
-			System.out.print(candidate[i]+padding);
-		}
-		System.out.println();
-		for(int i = 0; i < candidate.length; i++){
-			String padding = " ";
-			if(i > 9 && i < 100) padding = "  ";
-			else if(i > 99 && i < 1000) padding = "   ";
-			System.out.print(neighbor[i]+padding);
-		}
-		System.out.println();*/
 		return neighbor;
 	}
 
 	public ArrayList<Integer> getShuffledNeighborhoodIndexes() {
 		if (shuffledNeighborhoodIndexes.size() != neighborhoodChangeIndex.size()){
-			//System.out.println("size of N_indexes "+shuffledNeighborhoodIndexes.size()+", Size of N_ChangeIndex: "+neighborhoodChangeIndex.size());
-			//System.out.println("SizeOfNeighborhood: "+neighborhoodChangeIndex.size()+", Always selected: "+alwaysSelected.size());
 			shuffledNeighborhoodIndexes = new ArrayList<Integer>();
 			for (int i = 0; i < neighborhoodChangeIndex.size(); i++){
 				shuffledNeighborhoodIndexes.add(i);

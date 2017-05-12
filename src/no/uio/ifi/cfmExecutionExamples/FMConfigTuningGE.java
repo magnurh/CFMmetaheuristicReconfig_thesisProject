@@ -1,6 +1,6 @@
 package no.uio.ifi.cfmExecutionExamples;
 
-import no.uio.ifi.cfmReconfigurationEngine.FMReconfigurer;
+import no.uio.ifi.cfmReconfigurationEngine.CFMReconfigurer;
 
 public class FMConfigTuningGE {
 
@@ -25,7 +25,7 @@ public class FMConfigTuningGE {
 				};
 	
 		for (int i = 0; i < inputs.length; i++){
-			FMReconfigurer engine = new FMReconfigurer(inputs[i]);
+			CFMReconfigurer engine = new CFMReconfigurer(inputs[i]);
 			engine.applyGeneticAlgorithm();
 			
 			engine.setGeneticAlgInitialPopulationSize(128);

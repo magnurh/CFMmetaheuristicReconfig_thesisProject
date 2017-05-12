@@ -21,7 +21,7 @@ import org.json.simple.parser.ParseException;
 
 import no.uio.ifi.cfmDatasetGenerator.DatasetGenerator;
 
-public class FMReconfigurer{
+public class CFMReconfigurer{
 	
 	private String input;
 	
@@ -42,13 +42,8 @@ public class FMReconfigurer{
 	// Genetic Alg spec
 	private int geneticAlgInitPopSize = 64;
 	private int geneticAlgCrossoverBreakPoints = 1;
-	private double geneticAlgMutationProbability = 0.02;		// Try setting as 1/candidatelength as default
+	private double geneticAlgMutationProbability = 0.02;
 	private double geneticAlgRandomSelection = 0.08;
-		
-	
-//	long startTime = 0;
-//	long endTime = 0;
-//	long totalSolvingTime = 0;
 	
 	private int progressPrintInterval = 0;
 	
@@ -60,78 +55,16 @@ public class FMReconfigurer{
 	private boolean[] isVoidIndex;
 	private int voidModels = 0;
 	
-	public FMReconfigurer(String input){
+	public CFMReconfigurer(String input){
 		this.input = input;
 	}
-	
-/*	public static void main(String[] args){
-		
-
-		System.out.println("Running first set: simple");
-		executeReconfig(input, 0, 0);
-
-		System.out.println("Running first set: plateau: 10");
-		executeReconfig(input, 10, 0);
-		
-		System.out.println("Running first set: re-tries: 5");
-		executeReconfig(input, 0, 5);
-		
-		System.out.println("Running first set: plateau: 10, retries: 5");
-		executeReconfig(input, 10, 5);
-
-		input = "./out/data/170112-233247_Stage1/dataset.txt";
-		System.out.println("Running second set: simple");
-		executeReconfig(input, 0, 0);
-
-		System.out.println("Running second set: plateau: 10");
-		executeReconfig(input, 10, 0);
-		
-		System.out.println("Running second set: re-tries: 5");
-		executeReconfig(input, 0, 5);
-		
-		System.out.println("Running second set: plateau: 10, retries: 5");
-		executeReconfig(input, 10, 5);
-
-	}*/
-	
-	public void executeReconfig2(String input){
-		String timestamp = DatasetGenerator.timeStamp();
-		String output = "./out/analyses/"+timestamp+"_analysis.txt";
-		
-		try{
-			BufferedReader file = new BufferedReader(new FileReader(input));
-			String logPath = file.readLine();
-			String dir = file.readLine();
-			
-			String line = null;
-			while((line = file.readLine()) != null){
-			
-				if(useHillClimbing){
-					
-				}
-				if(useSimulatedAnnealing){
-					System.err.println("Warning: Simulated annealing is not yet implemented");
-				}
-				if(useGeneticAlgorithm){
-					System.err.println("Warning: Genetic algorithm is not yet implemented");
-				}
-			
-			}
-		}catch(IOException e){
-			System.err.println(e.getMessage());
-		}
-	}
 
 	
-	private void executeMetaheuristics(FMwrapper fm, Solver solver){
-		//TODO: Consider making list of candidates as shared starting point for all approaches
-		
+	private void executeMetaheuristics(CFMwrapper fm, Solver solver){		
 		if(useHillClimbing){
 
 			solver.setAllowedPlateauIterations(hillClimbPlateauIterations);
 			boolean foundGlobalOptimal = false;
-			//int best = Integer.MAX_VALUE;
-			//Metaheuristic bestTrial = null;
 			int retries = 0;
 
 			long startTime = System.nanoTime();
@@ -148,7 +81,6 @@ public class FMReconfigurer{
 			//System.out.println("Final Score: "+solver.getHillClimbResultScore());
 			long endTime = System.nanoTime();
 			solver.setHillClimbSolvingTime(endTime-startTime);
-			//fm.eval.printStoredEvaluations();		//	
 		}
 		if(useSimulatedAnnealing){
 			long startTime = System.nanoTime();
@@ -163,18 +95,17 @@ public class FMReconfigurer{
 			}
 			long endTime = System.nanoTime();
 			solver.setSimAnnealSolvingTime(endTime-startTime);
-			//System.err.println("Warning: Simulated annealing is not yet implemented");
 		}
 		if(useGeneticAlgorithm){
 			//System.out.println("GA");
 			long startTime = System.nanoTime();
-			int score = solver.geneticAlgorithm(geneticAlgInitPopSize, geneticAlgCrossoverBreakPoints, geneticAlgMutationProbability, geneticAlgRandomSelection);
+			solver.geneticAlgorithm(geneticAlgInitPopSize, geneticAlgCrossoverBreakPoints, geneticAlgMutationProbability, geneticAlgRandomSelection);
 			long endTime = System.nanoTime();
 			solver.setGeneticAlgSolvingTime(endTime-startTime);
-			//System.err.println("Warning: Genetic algorithm is not yet implemented");
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	public void executeReconfig(int numberOfNonVoidModelsToRun){
 		progressPrintInterval = 0;
 		
@@ -201,7 +132,7 @@ public class FMReconfigurer{
 					int contextSize = Integer.parseInt(mData[4]);
 					
 					if(!isVoidIndex[index]){
-						FMwrapper fm = new FMwrapper(dir, modelName, noFeatures, noAttributes, size, contextSize);
+						CFMwrapper fm = new CFMwrapper(dir, modelName, noFeatures, noAttributes, size, contextSize);
 						Solver solver = new Solver(fm);
 						executeMetaheuristics(fm, solver);
 						if(hyvarrecResults != null && index < hyvarrecResults.size()) solver.setHyvarrecResult(hyvarrecResults.get(index));
@@ -226,7 +157,6 @@ public class FMReconfigurer{
 								isVoidIndex = new boolean[dataSetSize];
 								readHyvarrecResults(input);
 							}
-							//for(int i = 0; i < isVoidIndex.length; i++) System.out.print(i+":"+isVoidIndex[i]+", ");
 						}
 					}
 				}
@@ -238,6 +168,7 @@ public class FMReconfigurer{
 		writeResults(input, counter, 0);
 	}
 	
+	@SuppressWarnings("unused")
 	public void executeReconfig(){	
 		progressPrintInterval = 0;
 		
@@ -255,14 +186,12 @@ public class FMReconfigurer{
 					String[] mData = line.split("\\s+");
 					String modelName = mData[0];
 					modelNames.add(modelName);
-					//System.out.println(modelName);
-					//String fmPath = dir+"/"+modelName;
 					int noFeatures = Integer.parseInt(mData[1]);
 					int noAttributes = Integer.parseInt(mData[2]);
 					int size = Integer.parseInt(mData[3]);
 					int contextSize = Integer.parseInt(mData[4]);
 					
-					FMwrapper fm = new FMwrapper(dir, modelName, noFeatures, noAttributes, size, contextSize);
+					CFMwrapper fm = new CFMwrapper(dir, modelName, noFeatures, noAttributes, size, contextSize);
 					Solver solver = new Solver(fm);
 					
 					executeMetaheuristics(fm, solver);
@@ -336,7 +265,6 @@ public class FMReconfigurer{
 		int noSolverSucceeded = 0;
 		long timeSpentByAllSolvers = 0;
 		
-		int i = 0;
 		for (Solver m : results.values()){
 			if(!m.isVoid()){
 				int hcScore = m.getHillClimbResultScore();
@@ -580,7 +508,6 @@ public class FMReconfigurer{
 			
 			
 			an.write("\nMODEL\t\tAPPROACH\tTIME\tITERATIONS\tSCORE\tRESULT");
-			int index = 0;
 			int sizeAFM = inputParameters.get("Size_AFM");
 			for(String modelname : results.keySet()){
 				for (int j = 0; j < approaches.length; j++){
@@ -603,7 +530,6 @@ public class FMReconfigurer{
 						an.write("\n"+modelname+"\t"+approaches[j]+"\t\t\t\t\t"+result);
 					}
 				}
-				index++;
 			}
 			
 			System.out.println(output);
@@ -615,173 +541,6 @@ public class FMReconfigurer{
 		}
 	}
 	
-	/*
-	public void executeReconfigOrig(String input){
-		progressPrintInterval = 0;
-		
-		int dataSetSize = 0;
-		int counter = 0;
-
-		String timestamp = AFMDatasetFactory.timeStamp();
-		String output = "./out/analyses/"+timestamp+"_analysis.txt";
-		
-		HashMap<String, Integer> inputParameters = new HashMap<String, Integer>();
-		
-		TreeMap<String, Metaheuristic> results = new TreeMap<String, Metaheuristic>();
-		
-		HashMap<String, Integer> hillClimbIterations = new HashMap<String, Integer>();
-		HashMap<String, Integer> hillClimbScore = new HashMap<String, Integer>();
-		HashMap<String, int[]> hillClimbResult = new HashMap<String, int[]>();
-		
-		HashMap<String, Integer> simAnnealingIterations = new HashMap<String, Integer>();
-		HashMap<String, Integer> simAnnealingScore = new HashMap<String, Integer>();
-		HashMap<String, int[]> simAnnealingResult = new HashMap<String, int[]>();
-		
-		try{
-			BufferedReader file = new BufferedReader(new FileReader(input));
-			
-			boolean readModel = false;
-			String line = null;
-			String logPath = file.readLine();
-			String dir = file.readLine();
-			while((line = file.readLine()) != null){
-				if (readModel){
-					String[] mData = line.split("\\s+");
-					String modelName = mData[0];
-					modelNames.add(modelName);
-					//System.out.println(modelName);
-					String fmPath = dir+"/"+modelName;
-					int noFeatures = Integer.parseInt(mData[1]);
-					int noAttributes = Integer.parseInt(mData[2]);
-					int size = Integer.parseInt(mData[3]);
-					int contextSize = Integer.parseInt(mData[4]);
-					FMwrapper fm = new FMwrapper(fmPath, noFeatures, noAttributes, size, contextSize);
-					
-					Metaheuristic solver = new Metaheuristic(fm);
-					solver.setAllowedPlateauIterations(hillClimbPlateauIterations);
-					
-					int best = Integer.MAX_VALUE;
-					Metaheuristic bestTrial = null;
-					int retries = 0;
-					long solvingTime = 0;
-					
-					while(retries <= maxNumberOfReTries && best != 0){
-						startTime = System.nanoTime();				//
-						int[] cand = fm.generateCandidate();					
-						int score = solver.hillClimbing(cand);
-						if (score < best) {
-							best = score;
-							bestTrial = solver;
-						}
-						retries++;
-						endTime = System.nanoTime();				//
-						//System.out.println("Solving time: "+(endTime-startTime)+" nano sec");	//
-						totalSolvingTime += (endTime - startTime);
-						System.out.println("Avg. solving time: "+convertNanoToTimeFormat(endTime-startTime));
-						//System.out.println("Iterations:\t"+solver.getHillClimbIterations());
-					}
-					//fm.eval.printStoredEvaluations();		//
-					results.put(modelName, bestTrial);
-					printProgress(dataSetSize, ++counter);
-					
-				}else if(line.equals("Feature_models")) {
-						readModel = true;
-						file.readLine();					
-				}else{
-					String[] l = line.split(": ");
-					if (l.length > 1){
-						int value = Integer.parseInt(l[1]);
-						inputParameters.put(l[0], value);
-						if (l[0].equals("Size_dataSet")){
-							dataSetSize = value;
-						}
-					}
-				}
-			}
-			System.out.println("Avg solving time: "+convertNanoToTimeFormat(totalSolvingTime/counter));
-			file.close();
-		}catch (IOException e){
-			System.err.println(e.getMessage());
-		}
-		
-		int score_Sum = 0;
-		int iter_Sum = 0;
-		int successes = 0;
-		int iter_Sum_Successes = 0;
-		
-		for (Metaheuristic m : results.values()){
-			int score = m.getHillClimbResultScore();
-			int iter = m.getHillClimbIterations();
-			score_Sum += score;
-			iter_Sum += iter;
-			if (score == 0) {
-				successes++;
-				iter_Sum_Successes += iter;
-			}
-		}
-		
-		System.out.println("Sum score: "+score_Sum);
-		System.out.println("Sum iterations: "+iter_Sum);
-		System.out.println("Successes: "+successes);
-		System.out.println("Sum iterations successes: "+iter_Sum_Successes);
-		System.out.println("Total count: "+counter);
-		
-		double successRate = successes*1.0/counter;
-		double avg_dist = score_Sum*1.0/counter;
-		double avg_iter = iter_Sum*1.0/counter;
-		double avg_iter_succ = iter_Sum_Successes*1.0/successes;
-		double avg_iter_nonSucc = (iter_Sum - iter_Sum_Successes) * 1.0 / (counter - successes);
-		String avg_solvingTime = convertNanoToTimeFormat(totalSolvingTime / counter);
-		
-		readHyvarrecResults();
-		
-		try {
-			FileWriter an = new FileWriter(new File(output));
-			an.write(output+"\n");
-			an.write(input+"\n");
-			for (String par : inputParameters.keySet()){
-				an.write(par+": "+inputParameters.get(par)+"\n");
-			}
-			an.write("\nHILL-CLIMBING\n");
-			an.write("Allowed_plateau_iterations: "+hillClimbPlateauIterations+"\n");
-			an.write("Number_of_random_retries: "+maxNumberOfReTries+"\n");
-			an.write("SuccessRate: "+successRate+"\n");
-			an.write("Avg_distance_from_global_optimal: "+avg_dist+"\n");
-			an.write("Avg_Iterations: "+avg_iter+"\n");
-			an.write("-Success_cases: "+avg_iter_succ+"\n");
-			an.write("-Non-success_cases: "+avg_iter_nonSucc+"\n");
-			an.write("Avg_SolvingTime: "+avg_solvingTime+"\n");
-			
-			an.write("\nMODEL\tAPPROACH\tITERATIONS\tSCORE\tRESULT");
-			int index = 0;
-			int sizeAFM = inputParameters.get("size_AFM");
-			for(String modelname : results.keySet()){
-				for (int i = 0; i < approaches.length; i++){
-					Metaheuristic m = results.get(modelname);
-					if(approaches[i].equals("HC")){
-						String result = resultAsString(m.getHillClimbResultVector(), sizeAFM);
-						an.write("\n"+modelname+"\tHC\t"+m.getHillClimbIterations()+"\t"+m.getHillClimbResultScore()+"\t"+result);
-					}else{
-						if (index < hyvarrecResults.size()){
-							int[] hyvarrecRes = transformHyvarrecResult(hyvarrecResults.get(index), m.FM.getCandidateLength());
-							String result = resultAsString(hyvarrecRes, sizeAFM);
-							an.write("\n"+modelname+"\t"+approaches[i]+"\t\t\t\t"+result);
-						}
-					}
-				}
-				index++;
-			}
-			
-			System.out.println(output);
-			System.out.println("Number of void models: "+voidModels);
-			
-			an.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	*/
-
 	public static String resultAsString(int[] v, int sizeAFM){
 		String res = "";
 		String deliminator = "";
@@ -792,6 +551,7 @@ public class FMReconfigurer{
 		return res;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static int[] transformHyvarrecResult(String hyvarrecRes, int length){
 		int[] result = new int[length];
 		JSONParser parser = new JSONParser();
@@ -799,14 +559,14 @@ public class FMReconfigurer{
 			JSONObject JSONRes = (JSONObject) parser.parse(hyvarrecRes);
 			if(JSONRes.get("result").equals("sat")){
 				JSONArray featureArr = (JSONArray) JSONRes.get("features");
-				Iterator features = featureArr.iterator();
+				Iterator<String> features = featureArr.iterator();
 				while(features.hasNext()){
 					String f = (String) features.next();
 					int i = ExpressionEvaluator.getInt(f);
 					if(i != -1 && i < result.length) result[i] = 1;
 				}
 				JSONArray attributeArr = (JSONArray) JSONRes.get("attributes");
-				Iterator attributes = attributeArr.iterator();
+				Iterator<JSONObject> attributes = attributeArr.iterator();
 				while(attributes.hasNext()){
 					JSONObject a = (JSONObject) attributes.next();
 					String id = (String) a.get("id");
@@ -814,7 +574,6 @@ public class FMReconfigurer{
 					int i = ExpressionEvaluator.getInt(id);
 					if(i != -1 && i < result.length){
 						if(value.equals("None")){
-							//TODO: Check what None means in hyvarrec
 							result[i] = 0;
 						}else{
 							int v = Integer.parseInt(value);
@@ -914,46 +673,6 @@ public class FMReconfigurer{
 		return String.format("%02d:%02d:%02d:%03d", hour, minute, second, millis);
 	}
 	
-	private static void test(FeatureModel fm){
-		
-		ExpressionEvaluator eval = new ExpressionEvaluator(fm);
-		
-		int[] val1 = new int[]{1,1,0,0,1,2};
-		int[] val2 = new int[]{0,1,0,0,0,3};
-		int[] val3 = new int[]{1,0,0,0,1,2};
-		int[] val4 = new int[]{1,1,1,1,0,0};
-		
-		
-		String exp1a = "feature[_id0] = 1"; //val1=true, val2=false
-		String exp1b = "(feature[_id0] = 0)"; //val1=false, val2=true
-		String exp2 = "(feature[_id0] = 1 impl feature[_id1] = 1)"; //val1=val2=true, val3=false
-		
-		String exp3 = "(feature[_id0] = 1 impl (((context[_idc0] !=  3 ) impl (attribute[_idatt5] >  3 ))))";
-			// exp3: val1=false unless idc=3
-		String exp4 = "(feature[_id0] = 1 impl (context[_idc0] >  2 ))"; 
-			// exp4: val2=true
-		String exp5 = "feature[_id0] = 1 impl (feature[_id1] = 1 and feature[_id2] = 1 and feature[_id3] = 1)";
-			// exp5: val1=val3=false, val2=val4=true
-		String exp6 = "(feature[_id0] = 1 or feature[_id1] = 1 or feature[_id2] = 1) impl feature[_id3] = 1";
-			// exp6: val1=val2=val3=false, val4=true 
-		
-	    String exp7 = "feature[_id1] = 1 impl (feature[_id2] + feature[_id3] + feature[_id4] = 1)";
-	    	// exp7: val2=val4=false, val1=val3=true
-	    String exp8 = "feature[_id0] = (feature[_id2] + feature[_id3] + feature[_id4])";
-	    	// exp8: val1=val2=val3=true, val4=false
-		
-	    //System.out.println("Exp1a, val2: "+eval.evaluate(exp1a, val2));		//false
-		//System.out.println("Exp1b, val2: "+eval.evaluate(exp1b, val2)); 	//true
-		//System.out.println("Exp2, val3: "+eval.evaluate(exp2, val3));		//false
-		//System.out.println("exp3, val1: "+eval.evaluate(exp3, val1));		//true if idc = 3, false otherwise
-		//System.out.println("exp4, val3: "+ eval.evaluate(exp4, val3));		//true if idc > 2, false otherwise
-		
-		System.out.println("exp5, val2: "+eval.evaluate(exp5, val2));		//true
-		System.out.println("exp6, val2: "+eval.evaluate(exp6, val2));		//false
-		System.out.println("exp7, val4: "+eval.evaluate(exp7, val4));		//false
-		System.out.println("exp8, val2: "+eval.evaluate(exp8, val2));		//true
-	}
-
 	public void applyHillClimbing() {
 		useHillClimbing = true;
 		addApproach("HC");

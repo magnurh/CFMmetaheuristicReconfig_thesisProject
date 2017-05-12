@@ -6,7 +6,6 @@ package no.uio.ifi.cfmDatasetGenerator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,14 +45,12 @@ public class FMextender implements VarModelExtender{
 	
 	private class Attribute{
 		protected int attrID;
-		//protected int parentFeature;
 		protected int minRange;
 		protected int maxRange;
 		protected int[] contextAffiliation = new int[context.size()];
 		
-		Attribute(int attrID, int parentFeature, int minRange, int maxRange){
+		Attribute(int attrID, int minRange, int maxRange){
 			this.attrID = attrID;
-			//this.parentFeature = parentFeature;
 			this.minRange = minRange;
 			this.maxRange = maxRange;
 		}
@@ -61,8 +58,6 @@ public class FMextender implements VarModelExtender{
 	
 	public FMextender(int highestID, int contextMaxSize, int contextMaxRange, int maxNumberOfVFs, int attrMinRange, int attrMaxRange){
 		context = new Context(1, contextMaxSize, contextMaxRange);
-		//relations = new HashMap<Integer, String>();
-		//relationCounter = 0;
 		attributes = new HashMap<String, String>();;
 		crossTreeConstraints = new HashMap<Integer, String>();;
 		ctcCounter = 0;
@@ -134,7 +129,7 @@ public class FMextender implements VarModelExtender{
 			int ida = ++incrementingID;
 			int attrMin = attrMinRange;
 			int attrMax = ThreadLocalRandom.current().nextInt(attrMin, attrMaxRange+1);
-			Attribute at = new Attribute(ida, featId, attrMin, attrMax);
+			Attribute at = new Attribute(ida, attrMin, attrMax);
 			featAttributes.put(featId, at);
 			noAttributes++;
 			return at;
@@ -166,7 +161,6 @@ public class FMextender implements VarModelExtender{
 	}
 	
 	private void addVFs(AFMWithContext afmc){
-		// TODO
 		// Assumptions:
 		// - only on leaf features
 		// - not more likely to involve features from alternative groups than any other
@@ -244,7 +238,6 @@ public class FMextender implements VarModelExtender{
 				break;
 			}
 		}
-		//System.out.println(f+" <- "+p);
 		if(p == f) return f;
 		else return findMandatoryPredecessorOf(p);
 	}
@@ -305,7 +298,6 @@ public class FMextender implements VarModelExtender{
 			
 			int lhsp = findMandatoryPredecessorOf(lhs);
 			int rhsp = findMandatoryPredecessorOf(rhs);
-			//System.out.println(ctcArr[1]);
 			if(!isPredecessorOf(lhsp, rhsp) && !sharesAltGroup(lhsp, rhsp)){
 				afmc.setCrossTreeConstraint(lhs, ctcArr[1], rhs);
 			}else{
@@ -356,7 +348,6 @@ public class FMextender implements VarModelExtender{
 				try {
 					afmc.setOrConstraint(p, group);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -417,8 +408,6 @@ public class FMextender implements VarModelExtender{
 		switch (choice){
 			case RELATION:
 				processRelations(l);
-//				relations.put(relationCounter, l);
-//				relationCounter++;
 				break;
 			case ATTRIBUTE:
 				String[] att = l.split(": ");
