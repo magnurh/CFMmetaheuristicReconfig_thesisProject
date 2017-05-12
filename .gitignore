@@ -9,3 +9,8 @@ TODO.txt
 bin
 .metadata
 out
+src/no/uio/ifi/cfmExecutionExamples/ConfigAllApproaches.java
+src/no/uio/ifi/cfmExecutionExamples/ConfigPresentation2.java
+src/no/uio/ifi/cfmExecutionExamples/ConfigTuningGE.java
+src/no/uio/ifi/cfmExecutionExamples/ConfigTuningSA.java
+src/no/uio/ifi/cfmExecutionExamples/MainTest.java
