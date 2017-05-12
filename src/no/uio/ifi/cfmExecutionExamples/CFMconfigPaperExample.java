@@ -2,7 +2,7 @@ package no.uio.ifi.cfmExecutionExamples;
 
 import no.uio.ifi.cfmReconfigurationEngine.CFMReconfigurer;
 
-public class FMConfigPaperExample {
+public class CFMconfigPaperExample {
 
 	public static void main(String[] args) {
 		String input = "./data/PAPER_TESTMODEL/dataset.txt";
@@ -21,6 +21,7 @@ public class FMConfigPaperExample {
 		engine.setGeneticAlgInitialPopulationSize(64);
 		engine.setGeneticAlgMutationProbability(0.02);
 		engine.setGeneticAlgRandomSelectionProbability(0.05);
+		
 		engine.executeReconfig();
 
 	}

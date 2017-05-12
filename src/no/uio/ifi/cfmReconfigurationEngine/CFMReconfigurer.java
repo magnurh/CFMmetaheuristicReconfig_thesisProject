@@ -445,7 +445,7 @@ public class CFMReconfigurer{
 			an.write("\nGENERAL RESULTS\n");
 			if(useHillClimbing) an.write("HC solved "+hcSolvedAlone+" FMs alone\n");
 			if(useSimulatedAnnealing) an.write("SA solved "+saSolvedAlone+" FMs alone\n");
-			if(useGeneticAlgorithm) an.write("GE solved "+geSolvedAlone+" FMs alone\n");
+			if(useGeneticAlgorithm) an.write("GA solved "+geSolvedAlone+" FMs alone\n");
 			double hcORsaSuccessRate = 0.0;
 			long hcORsaAvgTime = -1;
 			double hcORgaSuccessRate = 0.0;
@@ -462,13 +462,13 @@ public class CFMReconfigurer{
 				hcORgaSuccessRate = hcORgaSuccesses*1.0/counter;
 				hcORgaAvgTime = hcORgeTotalTime / hcORgaSuccesses;
 				String hcORgaAvgTimeStr = convertNanoToTimeFormat(hcORgaAvgTime);
-				an.write("Comb HC & GE - SuccessRate: "+String.format("%.3f", hcORgaSuccessRate)+", Avg_timeSuccesses: "+hcORgaAvgTimeStr+"\n");
+				an.write("Comb HC & GA - SuccessRate: "+String.format("%.3f", hcORgaSuccessRate)+", Avg_timeSuccesses: "+hcORgaAvgTimeStr+"\n");
 			}
 			if(useSimulatedAnnealing && useGeneticAlgorithm){
 				saORgaSuccessRate = saORgaSuccesses*1.0/counter;
 				saORgaAvgTime = saORgeTotalTime / saORgaSuccesses;
 				String saORgaAvgTimeStr = convertNanoToTimeFormat(saORgaAvgTime);
-				an.write("Comb SA & GE - SuccessRate: "+String.format("%.3f", saORgaSuccessRate)+", Avg_timeSuccesses: "+saORgaAvgTimeStr+"\n");
+				an.write("Comb SA & GA - SuccessRate: "+String.format("%.3f", saORgaSuccessRate)+", Avg_timeSuccesses: "+saORgaAvgTimeStr+"\n");
 			}
 			System.out.println(noSolverSucceeded);
 			System.out.println(counter);
@@ -520,10 +520,10 @@ public class CFMReconfigurer{
 						String result = resultAsString(m.getSimAnnealResultVector(), sizeAFM);
 						String time = convertNanoToTimeFormat(m.getSimAnnealSolvingTime());
 						an.write("\n"+modelname+"\tSA\t"+time+"\t"+m.getSimAnnealIterations()+"\t"+m.getSimAnnealResultScore()+"\t"+result);
-					}else if(approaches[j].equals("GE")){
+					}else if(approaches[j].equals("GA")){
 						String result = resultAsString(m.getGeneticAlgResultVector(), sizeAFM);
 						String time = convertNanoToTimeFormat(m.getGeneticAlgSolvingTime());
-						an.write("\n"+modelname+"\tGE\t"+time+"\t"+m.getGeneticAlgIterations()+"\t"+m.getGeneticAlgResultScore()+"\t"+result);
+						an.write("\n"+modelname+"\tGA\t"+time+"\t"+m.getGeneticAlgIterations()+"\t"+m.getGeneticAlgResultScore()+"\t"+result);
 					}else if (approaches[j].equals("HVR")){
 						int[] hyvarrecRes = transformHyvarrecResult(m.getHyvarrecResult(), m.FM.getCandidateLength());
 						String result = resultAsString(hyvarrecRes, sizeAFM);
@@ -685,7 +685,7 @@ public class CFMReconfigurer{
 	
 	public void applyGeneticAlgorithm(){
 		useGeneticAlgorithm = true;
-		addApproach("GE");
+		addApproach("GA");
 	}
 	
 	public void clearApproches(){

@@ -10,12 +10,12 @@ import no.uio.ifi.cfmDatasetGenerator.DatasetGenerator;
 public class DataSetGeneration{
 	public static void main(String[] args){
 		
-		String dataSetName = "000_Dataset";
+		String dataSetName = "Dataset01";
 		
-		int sizeOfDataSet = 20;
+		int sizeOfDataSet = 50;
 		
 		// CFM Parameters
-		int numberOfFeatures = 35;
+		int numberOfFeatures = 40;
 		int percentageOfCrossTreeConstraints = 35;
 		int maxPercentageOfVFs = 17;
 		int contextMaxSize = 13;

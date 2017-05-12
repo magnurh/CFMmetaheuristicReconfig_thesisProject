@@ -1,0 +1,65 @@
+./data/DatasetExample/dataset.txt
+./data/DatasetExample/CFM
+Size_dataSet: 50
+Size_AFM: 40
+Percentage_CTC: 35
+Max_number_of_Validity_Formulas: 6
+Probability_mandatory: 25
+Probability_optional: 25
+Probability_ALT: 25
+Probability_OR: 25
+Context_MaxSize: 5
+Context_MaxValue: 10
+
+Feature_models
+FILENAME	#FEATURES	#ATTRIBUTES	TOTAL_SIZE	CONTEXTSIZE
+0001_aFMwC.json	40	3	43	2
+0002_aFMwC.json	40	3	43	3
+0003_aFMwC.json	40	2	42	5
+0004_aFMwC.json	40	2	42	4
+0005_aFMwC.json	40	5	45	2
+0006_aFMwC.json	40	0	40	2
+0007_aFMwC.json	40	4	44	5
+0008_aFMwC.json	40	2	42	3
+0009_aFMwC.json	40	2	42	2
+0010_aFMwC.json	40	3	43	5
+0011_aFMwC.json	40	3	43	4
+0012_aFMwC.json	40	1	41	1
+0013_aFMwC.json	40	1	41	2
+0014_aFMwC.json	40	4	44	4
+0015_aFMwC.json	40	4	44	5
+0016_aFMwC.json	40	4	44	5
+0017_aFMwC.json	40	3	43	4
+0018_aFMwC.json	40	3	43	5
+0019_aFMwC.json	40	3	43	5
+0020_aFMwC.json	40	3	43	4
+0021_aFMwC.json	40	3	43	3
+0022_aFMwC.json	40	2	42	4
+0023_aFMwC.json	40	3	43	1
+0024_aFMwC.json	40	2	42	1
+0025_aFMwC.json	40	5	45	5
+0026_aFMwC.json	40	4	44	2
+0027_aFMwC.json	40	3	43	2
+0028_aFMwC.json	40	3	43	4
+0029_aFMwC.json	40	1	41	1
+0030_aFMwC.json	40	3	43	4
+0031_aFMwC.json	40	1	41	1
+0032_aFMwC.json	40	1	41	4
+0033_aFMwC.json	40	3	43	5
+0034_aFMwC.json	40	2	42	3
+0035_aFMwC.json	40	2	42	3
+0036_aFMwC.json	40	3	43	5
+0037_aFMwC.json	40	1	41	2
+0038_aFMwC.json	40	3	43	2
+0039_aFMwC.json	40	3	43	5
+0040_aFMwC.json	40	1	41	4
+0041_aFMwC.json	40	3	43	3
+0042_aFMwC.json	40	0	40	1
+0043_aFMwC.json	40	2	42	2
+0044_aFMwC.json	40	2	42	2
+0045_aFMwC.json	40	0	40	1
+0046_aFMwC.json	40	2	42	3
+0047_aFMwC.json	40	3	43	3
+0048_aFMwC.json	40	4	44	1
+0049_aFMwC.json	40	1	41	3
+0050_aFMwC.json	40	1	41	3
