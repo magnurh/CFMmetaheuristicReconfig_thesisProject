@@ -260,7 +260,7 @@ public class FMextender implements VarModelExtender{
 					else if(isPredecessorOf(group[j], b)) bFound = true;
 				}
 				if(aFound && bFound) {
-					System.err.println("Features "+a+" and "+b+" share alt-group");
+//					System.err.println("Features "+a+" and "+b+" share alt-group");
 					return true;
 				}
 			}
@@ -295,6 +295,7 @@ public class FMextender implements VarModelExtender{
 	}
 	
 	private void addCTCs(AFMWithContext afmc){
+		int CTCsRemoved = 0;
 		for (int i = 0; i < ctcCounter; i++){
 			String ctcString = crossTreeConstraints.get(i);
 			String[] ctcArr = ctcString.split("\\s+");
@@ -308,9 +309,11 @@ public class FMextender implements VarModelExtender{
 			if(!isPredecessorOf(lhsp, rhsp) && !sharesAltGroup(lhsp, rhsp)){
 				afmc.setCrossTreeConstraint(lhs, ctcArr[1], rhs);
 			}else{
-				System.err.println("CTC removed due to shared sub-tree: "+lhs+" and "+rhs);
+//				System.err.println("CTC removed due to shared sub-tree: "+lhs+" and "+rhs);
+				CTCsRemoved++;
 			}
 		}
+		System.out.println("Removed "+CTCsRemoved+" CTCs");
 	}
 	
 	private ArrayList<Integer> addAllFeatureIds(ArrayList<Integer> set){

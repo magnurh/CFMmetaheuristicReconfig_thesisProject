@@ -13,16 +13,19 @@ import es.us.isa.generator.FM.GeneratorCharacteristics;
 
 public class OnlyValidModelSATGenerator extends AbstractFMGeneratorDecorator {
 
-	int maxtries = 200;
+	int maxtries = 20;
 
 	public OnlyValidModelSATGenerator(IGenerator gen) {
 		super(gen);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public void updateResetGenerator(Characteristics c) {
 		super.updateResetGenerator(c);
+	}
+	
+	void setMaxTries(int m){
+		maxtries = m;
 	}
 
 	/**
@@ -44,7 +47,7 @@ public class OnlyValidModelSATGenerator extends AbstractFMGeneratorDecorator {
 		int tries = 0;
 
 		while (!valid && tries < maxtries) {
-			System.out.println("Attempt number "+(tries+1));
+//			System.out.println("Attempt number "+(tries+1));
 			model = super.generateFM(ch);
 			FeatureModelTransform fmt= new FeatureModelTransform();
 			Sat4jReasoner r = new Sat4jReasoner();

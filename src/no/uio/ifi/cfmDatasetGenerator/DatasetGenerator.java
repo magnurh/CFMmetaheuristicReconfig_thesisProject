@@ -163,7 +163,6 @@ public class DatasetGenerator {
 		StringBuilder log = startLog(directory);
         GeneratorCharacteristics characteristics = setCharacteristics(new GeneratorCharacteristics());
         StringBuilder hyvarrecInputScript = new StringBuilder("#!/bin/bash\n\n");
-        //NoProductsFitness noProdF = new NoProductsFitness();
         
 		for (int i = 1; i <= sizeDataSet; i++){
 			int seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
@@ -173,16 +172,16 @@ public class DatasetGenerator {
 	        FAMAFeatureModel fm;
 	        if(testForVoid){
 	        	genV = new OnlyValidModelSATGenerator(gen);
+	        	genV.setMaxTries(100);
 	        	fm = (FAMAFeatureModel) genV.generateFM(characteristics);
 	        }else{
 	        	fm = (FAMAFeatureModel) gen.generateFM(characteristics);
 	        }
-	        //Benchmark b;
 			int customRestrictionsScore = customRestrictions(fm);
 			int restrCounter = 0;
 			FAMAFeatureModel fmTestRestr = fm;
 			while(customRestrictionsScore < 0 && restrCounter < 20){
-				System.out.println("checking custom restrictions "+restrCounter); 	//
+//				System.out.println("checking custom restrictions "+restrCounter); 	//
 				seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
 				characteristics.setSeed(characteristics.getSeed()+seedIncr);
 		        gen = new FMGenerator();
@@ -199,22 +198,7 @@ public class DatasetGenerator {
 		        }
 		        restrCounter++;
 			}
-			System.out.println("CRS: "+customRestrictionsScore);
-	        //boolean isVoid = true;
-	        
-/*	        while(testForVoid && isVoid){
-	        	//TODO: add isTooSimple-function, if possible
-	        	double noProd = noProdF.fitness(fm);
-	        	System.out.println(noProd);
-	        	if(noProd == 0.0) {
-	        		seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
-	        		characteristics.setSeed(characteristics.getSeed()+seedIncr);
-	        		fm = (FAMAFeatureModel) gen.generateFM(characteristics);
-	        	}else isVoid = false;
-	        }*/
-	        
-	        //FMStatistics fmStat = new FMStatistics(fm);
-	        //System.out.println(fmStat);
+//			System.out.println("CRS: "+customRestrictionsScore);
 	        
 			String fmFilename = String.format("%04d", i)+"_aFM.afm";
 			String fmFileDir = "./out/data/"+directory+"/afm/"+fmFilename;
@@ -279,9 +263,9 @@ public class DatasetGenerator {
 		Feature root = fm.getRoot();
 		int depth = 5;
 		int paths = countMandAltPaths(fm, root, depth);
-		System.out.println(paths);
+//		System.out.println(paths);
 		int threshold = Integer.max(Integer.min(15, (int) (numberOfFeatures*0.10)), depth);
-		System.out.println("t: "+threshold);
+//		System.out.println("t: "+threshold);
 		return paths - threshold;
 	}
 	
