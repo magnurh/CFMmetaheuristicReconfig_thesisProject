@@ -36,7 +36,7 @@ public class DataSetGeneration{
 		generator.setRelativeContextSizeAndRange(contextMaxSize, contextMaxValue);
 		
 		try {
-			generator.generateCFMDataSet(true);
+			generator.generateCFMDataSet();
 		} catch (BettyException b) {
 			System.err.println(b.getMessage());
 		} catch (Exception e) {

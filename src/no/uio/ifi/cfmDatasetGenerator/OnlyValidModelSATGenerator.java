@@ -1,3 +1,7 @@
+/**
+ * Taken from BeTTy and modified
+ */
+
 package no.uio.ifi.cfmDatasetGenerator;
 
 import java.util.Random;

@@ -61,6 +61,12 @@ public class DatasetGenerator {
 	//Validity Formulas
 	private int maxNumberOfVFs = 12;
 	
+	//Process variables
+	private int validityMaxTries = 0;
+	private int numberOfPathsRequired = 0;
+	private int pathSearchDepth = 5;
+	private int pathRequirementTries = 0;
+	
 	
 	public DatasetGenerator(String dataSetName, int sizeDataSet, int numberOfFeatures, int percentageCTC, int maxNumberOfVFs){
 		this.generalNameOfDataset = dataSetName;
@@ -139,21 +145,32 @@ public class DatasetGenerator {
 		contextMaxValue = maxValue;
 	}
 	
+	public void setMaxTriesValidModelReasoner(int maxTries){
+		this.validityMaxTries = maxTries;
+	}
+	
+	public void setPathRequirements(int numberOfPathsRequired, int searchDepth, int maxTries){
+		this.numberOfPathsRequired = numberOfPathsRequired;
+		this.pathSearchDepth = searchDepth;
+		this.pathRequirementTries = maxTries;
+	}
+	
 	
 	/**
 	 * Runs BeTTy to generate a *non-attributed* feature model. 
 	 * Attributes are added along with VF's and models are stored in JSON format.
-	 * If testForVoid is true it will skip any void models from BeTTy, 
-	 * but it does not guarantee that the final model is satisfiable. 
+	 * If the parameter maxTriesValidModelReasoner is set to n
+	 * BeTTy will test for void and try up to n number of times to generate a valid model, 
+	 * The tool does not guarantee that the final model is satisfiable. 
 	 * Be aware of possible memory overflow
-	 * This is the second version of generateDataSet.
 	 * 
-	 * @param testForVoid
 	 * @throws Exception
 	 * @throws BettyException
 	 */
-	public void generateCFMDataSet(boolean testForVoid) throws Exception, BettyException {
+	public void generateCFMDataSet() throws Exception, BettyException {
 
+		boolean testForVoid = validityMaxTries > 0;
+		
 		String directory = createDirectory();
 		StringBuilder log = startLog(directory);
         GeneratorCharacteristics characteristics = setCharacteristics(new GeneratorCharacteristics());
@@ -167,15 +184,15 @@ public class DatasetGenerator {
 	        FAMAFeatureModel fm;
 	        if(testForVoid){
 	        	genV = new OnlyValidModelSATGenerator(gen);
-	        	genV.setMaxTries(100);
+	        	genV.setMaxTries(validityMaxTries);
 	        	fm = (FAMAFeatureModel) genV.generateFM(characteristics);
 	        }else{
 	        	fm = (FAMAFeatureModel) gen.generateFM(characteristics);
 	        }
-			int customRestrictionsScore = customRestrictions(fm);
+			int customRestrictionsScore = customRestrictions(fm, numberOfPathsRequired, pathSearchDepth);
 			int restrCounter = 0;
 			FAMAFeatureModel fmTestRestr = fm;
-			while(customRestrictionsScore < 0 && restrCounter < 20){
+			while(customRestrictionsScore < 0 && restrCounter < pathRequirementTries){
 //				System.out.println("checking custom restrictions "+restrCounter); 	//
 				seedIncr = ThreadLocalRandom.current().nextInt(sizeDataSet*999);
 				characteristics.setSeed(characteristics.getSeed()+seedIncr);
@@ -186,7 +203,7 @@ public class DatasetGenerator {
 		        }else{
 		        	fmTestRestr = (FAMAFeatureModel) gen.generateFM(characteristics);
 		        }
-		        int newRestrictionsScore = customRestrictions(fmTestRestr);
+		        int newRestrictionsScore = customRestrictions(fmTestRestr, numberOfPathsRequired, pathSearchDepth);
 		        if (newRestrictionsScore > customRestrictionsScore){
 		        	customRestrictionsScore = newRestrictionsScore;
 		        	fm = fmTestRestr;
@@ -254,13 +271,15 @@ public class DatasetGenerator {
 		writeLog("./out/data/"+directory+"/hyvarrecInputScript.sh", hyvarrecInputScript.toString());
 	}
 	
-	private int customRestrictions(FAMAFeatureModel fm){
+	// TODO: Make thresshold and restrictions user settings
+	private int customRestrictions(FAMAFeatureModel fm, int threshold, int depth){
 		Feature root = fm.getRoot();
-		int depth = 5;
 		int paths = countMandAltPaths(fm, root, depth);
 //		System.out.println(paths);
-		int threshold = Integer.max(Integer.min(15, (int) (numberOfFeatures*0.10)), depth);
+		threshold = Integer.min(threshold, Integer.max(5, (int) (numberOfFeatures*0.10)));
+		//threshold = Integer.max(Integer.min(15, (int) (numberOfFeatures*0.10)), depth);
 //		System.out.println("t: "+threshold);
+		System.out.println("MandAltPaths: "+paths);
 		return paths - threshold;
 	}
 	
